@@ -1,1 +1,20 @@
-Hello!
+{{ template "header"}}
+{{ template "footer" }}
+
+<script>
+$(function(){
+var token = Cookies.get('gotcha_token')
+if (!token){
+    window.location.replace('/login')
+}
+else{
+    window.location.replace('/applications')
+
+
+}
+
+})
+
+
+
+</script>
