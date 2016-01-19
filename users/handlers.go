@@ -33,7 +33,7 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	userp := &user
 	err = json.Unmarshal(body, userp)
 
-	if !((len(userp.Email) > 0) && (len(userp.Password) > 0)) {
+	if !((len(userp.Email) > 0) && (len(userp.Password) > 4)) {
 		w.WriteHeader(400)
 		return
 	}
