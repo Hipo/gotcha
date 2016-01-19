@@ -22,7 +22,7 @@
 
     <div class="container">
 
-      <form class="form-signin">
+      <div class="form-signin">
         <h2 class="form-signin-heading">Please sign up</h2>
         <label for="inputEmail" class="sr-only">Email address</label>
         <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
@@ -30,11 +30,11 @@
         <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
         <div class="checkbox">
         </div>
-        <button class="submit btn btn-lg btn-primary btn-block" type="submit">Sign Up</button>
-        <a href='/login/' class="btn btn-lg btn-danger btn-block" type="submit">Login</a>
+        <button class="signup btn btn-lg btn-primary btn-block" >Sign Up</button>
+        <a href='/login/' class="btn btn-lg btn-danger btn-block">Login</a>
 
 
-      </form>
+      </div>
     </div> <!-- /container -->
   </body>
 <footer>
@@ -43,12 +43,12 @@
 
 <script>
 $(function(){
-  $('.submit').on('click', function(){
+  $('.signup').on('click', function(){
     var email = $('#email').val()
     var password = $('#password').val()
     var data = {email: email, password: password}
     $.ajax({
-    url: '/api/signup/',
+    url: '/api/signup',
     type: "POST",
     data: JSON.stringify(data),
     contentType: "application/json",
