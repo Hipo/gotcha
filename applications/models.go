@@ -1,6 +1,7 @@
 package applications
 
 import (
+	"fmt"
 	"github.com/hipo/gotcha/mongo"
 	"gopkg.in/mgo.v2/bson"
 	"time"
@@ -21,10 +22,21 @@ func (a Application) CreateApplication() error {
 	return nil
 }
 
-func (a *Application) Serialize() map[string]string {
+func (a Application) UrlCount() string {
+	url := Url{}
+	count, err := mongo.Find(url, bson.M{"application_id": a.Id}).Count()
+	if err != nil {
+		fmt.Println(err)
+
+	}
+	return fmt.Sprintf("%v", count)
+}
+
+func (a Application) Serialize() map[string]string {
 	return map[string]string{
-		"name": a.Name,
-		"id":   a.Id.String(),
+		"Name":  a.Name,
+		"Id":    a.Id.Hex(),
+		"Count": a.UrlCount(),
 	}
 }
 

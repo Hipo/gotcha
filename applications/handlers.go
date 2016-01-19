@@ -79,11 +79,12 @@ func ApplicationListHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(403)
 		return
 	}
-	if err != nil {
-		w.WriteHeader(400)
-		return
+	serializedApplications := make([]map[string]string, len(applications))
+
+	for i, element := range applications {
+		serializedApplications[i] = element.Serialize()
 	}
-	json.NewEncoder(w).Encode(applications)
+	json.NewEncoder(w).Encode(serializedApplications)
 }
 
 func ApplicationAddHandler(w http.ResponseWriter, r *http.Request) {
