@@ -2,7 +2,6 @@ package users
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/hipo/gotcha/mongo"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/mgo.v2/bson"
@@ -38,7 +37,6 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 	}
 	err = mongo.Find(user, bson.M{"email": userp.Email}).One(userp)
-	fmt.Println(userp)
 	json.NewEncoder(w).Encode(userp.Serialize())
 
 }
