@@ -13,6 +13,12 @@ import (
 	"time"
 )
 
+func IndexHandler(w http.ResponseWriter, r *http.Request) {
+	t := template.New("index.tmpl")
+	t = template.Must(t.ParseGlob("templates/*.tmpl"))
+	t.Execute(w, nil)
+}
+
 func ApplicationListTemplateHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.New("applications.tmpl")
 	t = template.Must(t.ParseGlob("templates/*.tmpl"))

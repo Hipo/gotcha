@@ -17,6 +17,7 @@ type Routes []Route
 
 var routes = Routes{
 	Route{},
+
 	Route{"ApplicationList", "GET", "/api/applications", applications.ApplicationListHandler},
 	Route{"ApplicationDelete", "DELETE", "/api/applications/{applicationId}", applications.ApplicationDeleteHandler},
 
@@ -29,6 +30,7 @@ var routes = Routes{
 	Route{"SignUp", "POST", "/api/signup", users.SignUpHandler},
 	Route{"Login", "POST", "/api/login", users.LoginHandler},
 
+	Route{"IndexHandler", "GET", "/", applications.IndexHandler},
 	Route{"SignupTemplateHandler", "GET", "/signup", users.SignupTemplateHandler},
 	Route{"LoginTemplateHandler", "GET", "/login", users.LoginTemplateHandler},
 	Route{"ApplicationListTemplateHandler", "GET", "/applications", applications.ApplicationListTemplateHandler},
