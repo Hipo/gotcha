@@ -221,10 +221,10 @@ func FetchURL(url string, UrlId bson.ObjectId) {
 	}
 	defer response.Body.Close()
 	urlRecord := UrlRecord{}
-
 	urlRecordp := &urlRecord
 	urlRecordp.Id = bson.NewObjectId()
 	urlRecordp.UrlId = UrlId
+	urlRecordp.StatusCode = response.Status
 	urlRecordp.Time = time.Since(time_start).Seconds()
 	urlRecordp.CreateUrlRecord()
 }

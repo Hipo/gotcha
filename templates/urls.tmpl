@@ -18,6 +18,7 @@
                   <th>Last</th>
                   <th>Previous</th>
                   <th>Time</th>
+                  <th>Status Code </th>
                   <th>Delete</th>
                 </tr>
               </thead>
@@ -65,7 +66,7 @@
     var token = Cookies.get('gotcha_token')
     $.get('/api/applications/{{.Id.Hex}}/urls?token='+ token, function(response){
       var urls = JSON.parse(response)
-      var compiled = _.template('<% _.forEach(urls, function(url) { %>  <tr><td><%= url.Title %></td><td><%= url.Url %></td><td><%= url.Faster %></td><td><%= url.Last%></td></td><td><%= url.Previous%></td><td><%= url.Time %></td><td><button data-id="<%= url.Id %>" class=" remove glyphicon glyphicon-remove" aria-hidden="true"></button></td></tr><% }); %>');     
+      var compiled = _.template('<% _.forEach(urls, function(url) { %>  <tr><td><%= url.Title %></td><td><%= url.Url %></td><td><%= url.Faster %></td><td><%= url.Last%></td></td><td><%= url.Previous%></td><td><%= url.Time %></td><td><%= url.Status %></td><td><button data-id="<%= url.Id %>" class=" remove glyphicon glyphicon-remove" aria-hidden="true"></button></td></tr><% }); %>');
       $('.urls').append((compiled({ 'urls': urls})))
       $('.remove').on('click', function(element){
         var removeUrlId = element.target.dataset.id
@@ -79,7 +80,7 @@
 
       })
     })
-    
+
 
   $('#fetchUrls').on('click', function(){
     $.get('/api/applications/{{.Id.Hex}}/fetch?token='+ token, function(response){

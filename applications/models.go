@@ -49,41 +49,30 @@ func (u *Url) Serialize() map[string]interface{} {
 	if err != nil {
 		panic(err)
 	}
-	if len(records) >= 2 {
-		record1, record2 := records[0], records[1]
-		return map[string]interface{}{
-			"Id":       u.Id,
-			"Url":      u.Url,
-			"Title":    u.Title,
-			"Last":     record1.Time,
-			"Previous": record2.Time,
-			"Time":     record1.DateCreated,
-			"Faster":   record1.Time < record2.Time,
-		}
-
-	} else if len(records) == 1 {
+	bundle := make(map[string]interface{})
+	bundle["Id"] = u.Id
+	bundle["Url"] = u.Url
+	bundle["Title"] = u.Title
+	if len(records) >= 1 {
 		record1 := records[0]
-		return map[string]interface{}{
-			"Id":    u.Id,
-			"Url":   u.Url,
-			"Title": u.Title,
-			"Last":  record1.Time,
-		}
-	} else {
-		return map[string]interface{}{
-			"Id":    u.Id,
-			"Url":   u.Url,
-			"Title": u.Title,
-		}
-
+		bundle["Last"] = record1.Time
+		bundle["Time"] = record1.DateCreated
+		bundle["Status"] = record1.StatusCode
 	}
 
+	if len(records) >= 2 {
+		record1, record2 := records[0], records[1]
+		bundle["Previous"] = record2.Time
+		bundle["Faster"] = record1.Time < record2.Time
+	}
+	return bundle
 }
 
 type UrlRecord struct {
 	Id          bson.ObjectId `json:"id" bson:"_id"`
 	UrlId       bson.ObjectId `json:"url_id" bson:"url_id"`
 	Time        float64       `json:"time" bson:"time"`
+	StatusCode  string        `json:"status_code" bson:"status_code"`
 	DateCreated time.Time     `json:"date_created" bson:"date_created"`
 }
 
