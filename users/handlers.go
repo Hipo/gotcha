@@ -32,6 +32,18 @@ func SignUpHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	userp := &user
 	err = json.Unmarshal(body, userp)
+
+	if !((len(userp.Email) > 0) && (len(userp.Password) > 0)) {
+		w.WriteHeader(400)
+		return
+	}
+
+	count, err := mongo.Find(user, bson.M{"email": userp.Email}).Count()
+	if count > 0 {
+		w.WriteHeader(400)
+		return
+	}
+
 	err = userp.CreateUser()
 	if err != nil {
 		w.WriteHeader(400)
