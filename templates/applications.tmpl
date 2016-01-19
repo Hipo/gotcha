@@ -1,0 +1,95 @@
+  {{ template "header" }}
+  
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-12 col-md-12 main">
+          <h1 class="page-header">Dashboard</h1>
+          <h2 class="sub-header">Applications </h2>
+                    <button data-toggle="modal" id="addUrl" data-target=".bs-example-modal-lg" class='btn btn-lg btn-danger'>Add Application</button>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Applications</th>
+                  <th>Delete</th>
+                </tr>
+
+              </thead>  
+              <tbody class="applications"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="exampleModalLabel">New Application</h4>
+      </div>
+      <div class="modal-body">
+        <div>
+          <div class="form-group">
+            <label for="recipient-name" class="control-label">Name</label>
+            <input type="text" class="form-control" id="title">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="submit-app btn btn-primary">Add Application</button>
+      </div>
+    </div>
+  </div>
+  </div>
+
+
+  </body>
+  {{ template "footer"}}
+
+  <script>
+
+  $(function(){
+    var token = Cookies.get('gotcha_token')
+    if (!token){
+      window.location.replace('/login')
+
+
+    }
+    $.get('/api/applications?token='+ token, function(response){
+      response = JSON.parse(response)
+      var compiled = _.template('<% _.forEach(applications, function(application) { %>  <tr><td><a href="/applications/<%=application.id%>/urls"><%= application.name %></a> </td><td><button data-id="<%= application.id %>" class=" remove glyphicon glyphicon-remove" aria-hidden="true"></button></td></tr><% }); %>');     
+      $('.applications').append((compiled({ 'applications': response})))
+       $('.remove').on('click', function(element){
+        var removeApplicationId = element.target.dataset.id
+        $.ajax({
+                url: '/api/applications/' + removeApplicationId + '/?token=' + token,
+                type: 'DELETE',
+                complete: function(){
+                  window.location.reload()
+                }
+            });
+
+      })   
+    })
+  $('.submit-app').on('click', function(){
+    var data = {"name": $('#title').val()}
+    $.ajax({
+    url: '/api/applications?token=' + token,
+    type: "POST",
+    data: JSON.stringify(data),
+    contentType: "application/json",
+    complete: function(){
+        window.location.reload()
+
+      }
+    });
+  })
+
+
+
+
+
+  })
+  </script>

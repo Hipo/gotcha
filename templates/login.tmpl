@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Signup gotcha</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+    <!-- Custom styles for this template -->
+    <link href="/css/signin.css" rel="stylesheet">
+
+  </head>
+
+  <body>
+
+    <div class="container">
+
+
+
+
+
+      <div class="form-signin">
+        <h2 class="form-signin-heading">Please Login</h2>
+        <label for="inputEmail" class="sr-only">Email address</label>
+        <input type="email" id="email" class="form-control" placeholder="Email address">
+        <label for="inputPassword" class="sr-only">Password</label>
+        <input type="password" id="password" class="form-control" placeholder="Password">
+        <div class="checkbox">
+        </div>
+        <button class="submit btn btn-lg btn-primary btn-block">Login</button>
+        <a href='/signup/' class="btn btn-lg btn-danger btn-block">Signup</a>
+
+
+      </div>
+    </div> <!-- /container -->
+  </body>
+<footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-beta1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.1.0/js.cookie.min.js"></script>
+
+<script>
+$(function(){
+
+  $('.submit').on('click', function(){
+    var email = $('#email').val();
+    var password = $('#password').val();
+
+    $.ajax({
+    type: "POST",
+    url: '/api/login',
+    contentType: "application/json",
+    data: JSON.stringify({email: $('#email').val(), 
+                          password: $('#password').val()}),
+    success: function(response){
+      var response = JSON.parse(response)
+      var token = response.token
+      Cookies.set('gotcha_token', response.token)
+      window.location.replace('/applications')
+
+      }
+    });
+  })
+})
+</script>
+
+</footer>
+
+</html>
+
+

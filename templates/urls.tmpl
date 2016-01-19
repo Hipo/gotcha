@@ -1,0 +1,116 @@
+  {{ template "header" }}
+  <body>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-12 col-md-12 main">
+          <h1 class="page-header">Dashboard</h1>
+          <h2 class="sub-header">{{.Name}}</h2>
+
+          <button  id='fetchUrls' class='btn btn-lg btn-primary'>Fetch URLs</button>
+          <button data-toggle="modal" id="addUrl" data-target=".bs-example-modal-lg" class='btn btn-lg btn-danger'>Add URL</button>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Url</th>
+                  <th>Faster</th>
+                  <th>Last</th>
+                  <th>Previous</th>
+                  <th>Time</th>
+                  <th>Delete</th>
+                </tr>
+              </thead>
+              <tbody class="urls"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="exampleModalLabel">New URL</h4>
+      </div>
+      <div class="modal-body">
+        <div>
+          <div class="form-group">
+            <label for="recipient-name" class="control-label">Title</label>
+            <input type="text" class="form-control" id="title">
+          </div>
+          <div class="form-group">
+            <label for="message-text" class="control-label">Url</label>
+            <input type='text' class="form-control" id="url"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="submit-url btn btn-primary">Add URL</button>
+      </div>
+    </div>
+  </div>
+  </div>
+</body>
+
+
+
+  {{ template "footer"}}
+
+  <script>
+
+  $(function(){
+    var token = Cookies.get('gotcha_token')
+    $.get('/api/applications/{{.Id.Hex}}/urls?token='+ token, function(response){
+      var urls = JSON.parse(response)
+      var compiled = _.template('<% _.forEach(urls, function(url) { %>  <tr><td><%= url.Title %></td><td><%= url.Url %></td><td><%= url.Faster %></td><td><%= url.Last%></td></td><td><%= url.Previous%></td><td><%= url.Time %></td><td><button data-id="<%= url.Id %>" class=" remove glyphicon glyphicon-remove" aria-hidden="true"></button></td></tr><% }); %>');     
+      $('.urls').append((compiled({ 'urls': urls})))
+      $('.remove').on('click', function(element){
+        var removeUrlId = element.target.dataset.id
+        $.ajax({
+                url: '/api/applications/{{.Id.Hex}}/urls/' + removeUrlId + '/?token=' + token,
+                type: 'DELETE',
+                complete: function(){
+                  window.location.reload()
+                }
+            });
+
+      })
+    })
+    
+
+  $('#fetchUrls').on('click', function(){
+    $.get('/api/applications/{{.Id.Hex}}/fetch?token='+ token, function(response){
+      window.location.reload()
+    })
+  })
+  $('.submit-url').on('click', function(){
+    var data = {"url": $('#url').val(), "title": $("#title").val()}
+    $.ajax({
+    url: '/api/applications/{{.Id.Hex}}/urls?token=' + token,
+    type: "POST",
+    data: JSON.stringify(data),
+    contentType: "application/json",
+    complete: function(){
+
+      }
+    });
+
+
+    $.get('/api/applications/{{.Id.Hex}}/fetch?token='+ token, function(response){
+      console.log('yay')
+      window.location.reload()
+    })
+  })
+
+
+
+})
+
+
+
+
+
+  </script>
