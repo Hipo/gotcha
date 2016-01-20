@@ -10,7 +10,7 @@ import (
 type Application struct {
 	Id          bson.ObjectId `json:"id" bson:"_id"`
 	OwnerId     bson.ObjectId `json: "owner_id" bson:"owner_id"`
-	CallbackUrl string        `json: "callback_url" bson:"callback_url"`
+	CallbackUrl string        `json: "callback_url" bson:"callbackurl"`
 	Name        string        `json:"name" bson:"name"`
 }
 

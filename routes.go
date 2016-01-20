@@ -20,6 +20,7 @@ var routes = Routes{
 
 	Route{"ApplicationList", "GET", "/api/applications", applications.ApplicationListHandler},
 	Route{"ApplicationDelete", "DELETE", "/api/applications/{applicationId}", applications.ApplicationDeleteHandler},
+	Route{"AddCallback", "POST", "/api/applications/{applicationId}/addcallback", applications.AddCallbackHandler},
 
 	Route{"PostApplication", "POST", "/api/applications", applications.ApplicationAddHandler},
 	Route{"UrlList", "GET", "/api/applications/{applicationId}/urls", applications.UrlListHandler},

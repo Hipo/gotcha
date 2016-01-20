@@ -14,6 +14,10 @@ import (
 	"time"
 )
 
+type Callback struct {
+	CallbackUrl string `json:"callbackurl"`
+}
+
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
 	t := template.New("index.tmpl")
 	t = template.Must(t.ParseGlob("templates/*.tmpl"))
@@ -109,6 +113,30 @@ func ApplicationAddHandler(w http.ResponseWriter, r *http.Request) {
 	applicationp.CreateApplication()
 	w.WriteHeader(200)
 	return
+}
+
+func AddCallbackHandler(w http.ResponseWriter, r *http.Request) {
+	application := Application{}
+	vars := mux.Vars(r)
+	applicationId := vars["applicationId"]
+	token := r.FormValue("token")
+	body, err := ioutil.ReadAll(r.Body)
+
+	if err != nil {
+		w.WriteHeader(400)
+	}
+
+	isAuthenticated := IsAuthenticated(token, applicationId)
+	if isAuthenticated != true {
+		w.WriteHeader(403)
+		return
+	}
+	callback := Callback{}
+	json.Unmarshal(body, &callback)
+	mongo.Update(application,
+		bson.M{"_id": bson.ObjectIdHex(applicationId)},
+		bson.M{"$set": bson.M{"callbackurl": callback.CallbackUrl}})
+
 }
 
 func ApplicationDeleteHandler(w http.ResponseWriter, r *http.Request) {
@@ -263,13 +291,13 @@ func FetchApplicationURLs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	channel := make(chan int, len(urls))
-	urlJ, _ := json.Marshal(&urls)
-	urlJstring := string(urlJ)
+	urlJSON, _ := json.Marshal(&urls)
+	urlJSONString := string(urlJSON)
 
 	for i := 0; i < len(urls); i++ {
 		go FetchURL(channel, urls[i].Url, urls[i].Id)
 	}
 
-	go PostCallback(channel, len(urls), application.CallbackUrl, urlJstring)
+	go PostCallback(channel, len(urls), application.CallbackUrl, urlJSONString)
 
 }
