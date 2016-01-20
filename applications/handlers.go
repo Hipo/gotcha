@@ -1,6 +1,7 @@
 package applications
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -213,7 +214,7 @@ func UrlDeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func FetchURL(url string, UrlId bson.ObjectId) {
+func FetchURL(channel chan int, url string, UrlId bson.ObjectId) {
 	time_start := time.Now()
 	response, err := http.Get(url)
 	if err != nil {
@@ -228,6 +229,16 @@ func FetchURL(url string, UrlId bson.ObjectId) {
 	urlRecordp.StatusCode = response.Status
 	urlRecordp.Time = time.Since(time_start).Seconds()
 	urlRecordp.CreateUrlRecord()
+	channel <- 1
+	return
+}
+
+func PostCallback(channel chan int, count int, url string, urls string) {
+	for i := 0; i < count; i++ {
+		<-channel
+	}
+	var jsonUrls = []byte(urls)
+	http.Post(url, "application/json", bytes.NewBuffer(jsonUrls))
 }
 
 func FetchApplicationURLs(w http.ResponseWriter, r *http.Request) {
@@ -242,13 +253,23 @@ func FetchApplicationURLs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	url := Url{}
+	application := Application{}
 	var urls []Url
 	err := mongo.Find(url, bson.M{"application_id": bson.ObjectIdHex(applicationId)}).All(&urls)
+	err = mongo.Find(application, bson.M{"_id": bson.ObjectIdHex(applicationId)}).One(&application)
+
 	if err != nil {
 		w.WriteHeader(400)
 		return
 	}
+	channel := make(chan int, len(urls))
+	urlJ, _ := json.Marshal(&urls)
+	urlJstring := string(urlJ)
+
 	for i := 0; i < len(urls); i++ {
-		go FetchURL(urls[i].Url, urls[i].Id)
+		go FetchURL(channel, urls[i].Url, urls[i].Id)
 	}
+
+	go PostCallback(channel, len(urls), application.CallbackUrl, urlJstring)
+
 }

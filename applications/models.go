@@ -8,9 +8,10 @@ import (
 )
 
 type Application struct {
-	Id      bson.ObjectId `json:"id" bson:"_id"`
-	OwnerId bson.ObjectId `json: "owner_id" bson:"owner_id"`
-	Name    string        `json:"name" bson:"name"`
+	Id          bson.ObjectId `json:"id" bson:"_id"`
+	OwnerId     bson.ObjectId `json: "owner_id" bson:"owner_id"`
+	CallbackUrl string        `json: "callback_url" bson:"callback_url"`
+	Name        string        `json:"name" bson:"name"`
 }
 
 func (a Application) Collection() string { return "applications" }
@@ -34,9 +35,10 @@ func (a Application) UrlCount() string {
 
 func (a Application) Serialize() map[string]string {
 	return map[string]string{
-		"Name":  a.Name,
-		"Id":    a.Id.Hex(),
-		"Count": a.UrlCount(),
+		"Name":        a.Name,
+		"Id":          a.Id.Hex(),
+		"Count":       a.UrlCount(),
+		"CallbackUrl": a.CallbackUrl,
 	}
 }
 
