@@ -9,7 +9,10 @@
           <button  id='fetchUrls' class='btn btn-lg btn-primary'>Fetch URLs</button>
           <button data-toggle="modal" id="addUrl" data-target=".bs-example-modal-lg" class='btn btn-lg btn-danger'>Add URL</button>
           <button data-toggle="modal" id="callBack" data-target=".modal2" class='btn btn-lg btn-primary'>Add Callback</button>
-          
+          <h4>Callback Url: {{.CallbackUrl}}</h4>
+          <h4 class='token'>Token: </h4>
+          <h4 class='token'>Token: </h4>
+
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
@@ -111,7 +114,9 @@
       window.location.reload()
     })
   })
+
   $('.submit-url').on('click', function(){
+
     var data = {"url": $('#url').val(), "title": $("#title").val()}
     $.ajax({
     url: '/api/applications/{{.Id.Hex}}/urls?token=' + token,
@@ -119,9 +124,11 @@
     data: JSON.stringify(data),
     contentType: "application/json",
     complete: function(){
-
+      window.location.reload();
       }
     });
+  })
+
   $('.submit-callback').on('click', function(){
     var data = {"callbackurl": $('#callback-url').val()}
     $.ajax({
@@ -130,21 +137,11 @@
     data: JSON.stringify(data),
     contentType: "application/json",
     complete: function(){
-
+        window.location.reload();
       }
     });
-
-})
-
-    $.get('/api/applications/{{.Id.Hex}}/fetch?token='+ token, function(response){
-      console.log('yay')
-      window.location.reload()
-    })
   })
-
-
-
-})
+  })
 
 
 
