@@ -139,8 +139,23 @@
   })
 
   $('.submit-url').on('click', function(){
+	  
+	  var headers = $('.header-row').map(function(i, e) {
+		  var keyInput = $(e).children("input[name='key']").val()
+		  var valueInput = $(e).children("input[name='value']").val()
+		  
+		  var a = {}
+		  a[keyInput] = valueInput
+		  return a;
+	  });
+	  headers = Array.from(headers).reduce(function(r, c){
+		  for (i in c) {
+		  	r[i] = c[i]
+		  }
+		  return r;
+	  }, {});
 
-    var data = {"url": $('#url').val(), "title": $("#title").val()}
+	  var data = {"url": $('#url').val(), "title": $("#title").val(), "headers": headers }
     $.ajax({
     url: '/api/applications/{{.Id.Hex}}/urls?token=' + token,
     type: "POST",
@@ -173,9 +188,9 @@
   }
 
   $('#btn-add-header').on('click', function() {
-	  var e = $('<div class="form-inline">\
-				  <input class="form-control" type="text" placeholder="Key" autofocus required />\
-				  <input class="form-control" type="text" placeholder="Value" required />\
+	  var e = $('<div class="form-inline header-row">\
+				  <input class="form-control" name="key" type="text" placeholder="Key" autofocus required />\
+				  <input class="form-control" name="value" type="text" placeholder="Value" required />\
 				  <button class="btn btn-danger" class="btn-delete-header">Delete Header</button>\
 			  </div>')
 	  $(e).children('button').on('click', deleteHandler);
@@ -183,7 +198,6 @@
   })
   
   $(document).ready(function(){
-	  console.log($('.btn-delete-header').parent())
 	  $('.btn-delete-header').on('click', deleteHandler);
   })
   
