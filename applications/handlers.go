@@ -202,8 +202,14 @@ func UrlListHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(serializedUrls)
 }
 
+func UrlAddHandlerOptions(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.WriteHeader(200)
+}
+
 func UrlAddHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 	vars := mux.Vars(r)
 	applicationId := vars["applicationId"]
 	token := r.FormValue("token")

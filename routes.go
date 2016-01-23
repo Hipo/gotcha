@@ -24,7 +24,10 @@ var routes = Routes{
 
 	Route{"PostApplication", "POST", "/api/applications", applications.ApplicationAddHandler},
 	Route{"UrlList", "GET", "/api/applications/{applicationId}/urls", applications.UrlListHandler},
+
 	Route{"PostUrl", "POST", "/api/applications/{applicationId}/urls", applications.UrlAddHandler},
+	Route{"PostUrlOptions", "OPTIONS", "/api/applications/{applicationId}/urls", applications.UrlAddHandlerOptions},
+
 	Route{"FetchUrls", "GET", "/api/applications/{applicationId}/fetch", applications.FetchApplicationURLs},
 	Route{"UrlDeleteHandler", "DELETE", "/api/applications/{applicationId}/urls/{urlId}", applications.UrlDeleteHandler},
 	Route{"UrlDetailHandler", "GET", "/api/applications/{applicationId}/urls/{urlId}", applications.UrlDetailHandler},
