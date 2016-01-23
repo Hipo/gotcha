@@ -27,6 +27,7 @@ var routes = Routes{
 	Route{"PostUrl", "POST", "/api/applications/{applicationId}/urls", applications.UrlAddHandler},
 	Route{"FetchUrls", "GET", "/api/applications/{applicationId}/fetch", applications.FetchApplicationURLs},
 	Route{"UrlDeleteHandler", "DELETE", "/api/applications/{applicationId}/urls/{urlId}", applications.UrlDeleteHandler},
+	Route{"UrlDetailHandler", "GET", "/api/applications/{applicationId}/urls/{urlId}", applications.UrlDetailHandler},
 
 	Route{"SignUp", "POST", "/api/signup", users.SignUpHandler},
 	Route{"Login", "POST", "/api/login", users.LoginHandler},
@@ -36,4 +37,5 @@ var routes = Routes{
 	Route{"LoginTemplateHandler", "GET", "/login", users.LoginTemplateHandler},
 	Route{"ApplicationListTemplateHandler", "GET", "/applications", applications.ApplicationListTemplateHandler},
 	Route{"UrlListTemplateHandler", "GET", "/applications/{applicationId}/urls", applications.UrlListTemplateHandler},
+	Route{"UrlDetailTemplateHandler", "GET", "/applications/{applicationId}/urls/{urlId}", applications.UrlDetailTemplateHandler},
 }
