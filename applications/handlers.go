@@ -47,6 +47,23 @@ func UrlListTemplateHandler(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, applicationp)
 }
 
+func UrlDetailTemplateHandler(w http.ResponseWriter, r *http.Request) {
+	t := template.New("url_detail.tmpl")
+	t = template.Must(t.ParseGlob("templates/*.tmpl"))
+	url := Url{}
+	vars := mux.Vars(r)
+
+	urlId := vars["urlId"]
+	urlp := &url
+	err := mongo.Find(url, bson.M{"_id": bson.ObjectIdHex(urlId)}).One(urlp)
+	if err != nil {
+		w.WriteHeader(404)
+		return
+
+	}
+	t.Execute(w, urlp)
+}
+
 func IsAuthenticated(authToken string, applicationId string) bool {
 	user := users.User{}
 	application := Application{}
@@ -240,6 +257,33 @@ func UrlDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(204)
 
+}
+
+func UrlDetailHandler(w http.ResponseWriter, r *http.Request) {
+
+	url_record := UrlRecord{}
+	var records []UrlRecord
+	vars := mux.Vars(r)
+	urlId := vars["urlId"]
+	applicationId := vars["applicationId"]
+	token := r.FormValue("token")
+
+	isAuthenticated := IsAuthenticated(token, applicationId)
+	if isAuthenticated != true {
+		w.WriteHeader(403)
+		return
+	}
+	err := mongo.Find(url_record, bson.M{"url_id": bson.ObjectIdHex(urlId)}).All(&records)
+	if err != nil {
+		w.WriteHeader(404)
+		return
+	}
+	serializedUrlRecords := make([]map[string]interface{}, len(records))
+
+	for i, element := range records {
+		serializedUrlRecords[i] = element.Serialize()
+	}
+	json.NewEncoder(w).Encode(serializedUrlRecords)
 }
 
 func FetchURL(channel chan int, url string, UrlId bson.ObjectId) {

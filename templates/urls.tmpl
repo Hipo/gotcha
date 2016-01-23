@@ -84,8 +84,6 @@
   </div>
 </body>
 
-
-
   {{ template "footer"}}
 
   <script>
@@ -94,7 +92,7 @@
     var token = Cookies.get('gotcha_token')
     $.get('/api/applications/{{.Id.Hex}}/urls?token='+ token, function(response){
       var urls = JSON.parse(response)
-      var compiled = _.template('<% _.forEach(urls, function(url) { %>  <tr><td><%= url.Title %></td><td><A href=<%= url.Url %>><%= url.Url.substring(0, 50) %></a></td><td><%= url.Faster %></td><td><%= (url.Last * 1000).toFixed(3) %>ms</td></td><td><%= (url.Previous * 1000).toFixed(3)%>ms</td><td><%= url.Time %></td><td><%= url.Status %></td><td><button data-id="<%= url.Id %>" class=" remove glyphicon glyphicon-remove" aria-hidden="true"></button></td></tr><% }); %>');
+      var compiled = _.template('<% _.forEach(urls, function(url) { %>  <tr><td><a href="/applications/<%= url.ApplicationId %>/urls/<%= url.Id %>"><%= url.Title %></a></td><td><A href=<%= url.Url %>><%= url.Url.substring(0, 50) %></a></td><td><%= url.Faster %></td><td><%= (url.Last * 1000).toFixed(3) %>ms</td></td><td><%= (url.Previous * 1000).toFixed(3)%>ms</td><td><%= url.Time %></td><td><%= url.Status %></td><td><button data-id="<%= url.Id %>" class=" remove glyphicon glyphicon-remove" aria-hidden="true"></button></td></tr><% }); %>');
       $('.urls').append((compiled({ 'urls': urls})))
       $('.remove').on('click', function(element){
         var removeUrlId = element.target.dataset.id

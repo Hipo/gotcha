@@ -68,6 +68,7 @@ func (u *Url) Serialize() map[string]interface{} {
 	bundle["Id"] = u.Id
 	bundle["Url"] = u.Url
 	bundle["Title"] = u.Title
+	bundle["ApplicationId"] = u.ApplicationId
 	if len(records) >= 1 {
 		record1 := records[0]
 		bundle["Last"] = record1.Time
@@ -89,6 +90,15 @@ type UrlRecord struct {
 	Time        float64       `json:"time" bson:"time"`
 	StatusCode  string        `json:"status_code" bson:"status_code"`
 	DateCreated time.Time     `json:"date_created" bson:"date_created"`
+}
+
+func (r *UrlRecord) Serialize() map[string]interface{} {
+	bundle := make(map[string]interface{})
+	bundle["Time"] = r.Time
+	bundle["StatusCode"] = r.StatusCode
+	bundle["DateCreated"] = r.DateCreated
+	
+	return bundle
 }
 
 func (u UrlRecord) Collection() string { return "urlrecords" }
