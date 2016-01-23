@@ -8,6 +8,8 @@
 
           <button  id='fetchUrls' class='btn btn-lg btn-primary'>Fetch URLs</button>
           <button data-toggle="modal" id="addUrl" data-target=".bs-example-modal-lg" class='btn btn-lg btn-danger'>Add URL</button>
+          <button data-toggle="modal" id="callBack" data-target=".modal2" class='btn btn-lg btn-primary'>Add Callback</button>
+          
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
@@ -54,6 +56,29 @@
     </div>
   </div>
   </div>
+
+  <div class="modal fade modal2" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="exampleModalLabel">New Callback</h4>
+      </div>
+      <div class="modal-body">
+        <div>
+          <div class="form-group">
+            <label for="recipient-name" class="control-label">Callback URL</label>
+            <input type="text" class="form-control" id="callback-url">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="submit-callback btn btn-primary">Add Callback</button>
+      </div>
+    </div>
+  </div>
+  </div>
 </body>
 
 
@@ -81,7 +106,6 @@
       })
     })
 
-
   $('#fetchUrls').on('click', function(){
     $.get('/api/applications/{{.Id.Hex}}/fetch?token='+ token, function(response){
       window.location.reload()
@@ -98,7 +122,19 @@
 
       }
     });
+  $('.submit-callback').on('click', function(){
+    var data = {"callbackurl": $('#callback-url').val()}
+    $.ajax({
+    url: '/api/applications/{{.Id.Hex}}/addcallback?token=' + token,
+    type: "POST",
+    data: JSON.stringify(data),
+    contentType: "application/json",
+    complete: function(){
 
+      }
+    });
+
+})
 
     $.get('/api/applications/{{.Id.Hex}}/fetch?token='+ token, function(response){
       console.log('yay')
