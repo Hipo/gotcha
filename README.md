@@ -19,8 +19,8 @@ Application Detail Screen
 
 Url List Screen
 ---------------
-![url list](https://raw.github.com/Hipo/gotcha/master/screenshots/url-list.png)
+![url list](https://raw.github.com/Hipo/gotcha/master/screenshots/add-url.png)
 
 Url Detail Screen
 -----------------
-![url detail](https://raw.github.com/Hipo/gotcha/master/screenshots/url-detail.png)
+![url detail](https://raw.github.com/Hipo/gotcha/master/screenshots/url-record-detail.png)
