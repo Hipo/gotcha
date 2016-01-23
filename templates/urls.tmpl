@@ -43,12 +43,16 @@
         <div>
           <div class="form-group">
             <label for="recipient-name" class="control-label">Title</label>
-            <input type="text" class="form-control" id="title">
+            <input type="text" class="form-control" id="title" />
           </div>
           <div class="form-group">
             <label for="message-text" class="control-label">Url</label>
-            <input type='text' class="form-control" id="url"></textarea>
+            <input type='text' class="form-control" id="url" />
           </div>
+		  <div class="form-group">
+            <label class="control-label">Headers</label>
+			<button class="btn btn-primary pull-right" id="btn-add-header">Add Header</button>
+		  </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -161,9 +165,26 @@
     });
   })
   })
+  
+  var deleteHandler = function() {
+  	$(this)
+	  .parent('.form-inline')
+	  .remove()
+  }
 
-
-
-
-
+  $('#btn-add-header').on('click', function() {
+	  var e = $('<div class="form-inline">\
+				  <input class="form-control" type="text" placeholder="Key" autofocus required />\
+				  <input class="form-control" type="text" placeholder="Value" required />\
+				  <button class="btn btn-danger" class="btn-delete-header">Delete Header</button>\
+			  </div>')
+	  $(e).children('button').on('click', deleteHandler);
+	  $(this).parent('.form-group').append(e);
+  })
+  
+  $(document).ready(function(){
+	  console.log($('.btn-delete-header').parent())
+	  $('.btn-delete-header').on('click', deleteHandler);
+  })
+  
   </script>
