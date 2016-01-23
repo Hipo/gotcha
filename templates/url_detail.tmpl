@@ -3,8 +3,8 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-sm-12 col-md-12 main">
-          <h1 class="page-header">Url Response Benchmark</h1>
-          <h2 class="sub-header"><a href="{{.Url}}" target="_blank">{{.Url}}</a></h2>
+          	<h1 class="page-header">Url Response Benchmark</h1>
+         	<h2 class="sub-header"><a href="{{.Url}}" target="_blank">{{.Url}}</a></h2>
         </div>
       </div>
     </div>
@@ -26,44 +26,81 @@
 
 {{ template "footer"}}
 
-<script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
 
 <script type="text/javascript">
-	$(function(){
-	    var token = Cookies.get('gotcha_token')
-		var compiled = _.template('<% _.forEach(records, function(record) { %>  <tr><td><%= record.Time %></td> <td><%= record.StatusCode %></td> <td><%= record.DateCreated %></td></tr><% }); %>');
-
-	    $.get('/api/applications/{{.ApplicationId.Hex}}/urls/{{.Id.Hex}}?token='+ token, function(response){
+    var token = Cookies.get('gotcha_token')
+	var compiled = _.template('<% _.forEach(records, function(record) { %>  <tr><td><%= record.Time %></td> <td><%= record.StatusCode %></td> <td><%= record.DateCreated %></td></tr><% }); %>');
+	$(function () {
+  	    $.get('/api/applications/{{.ApplicationId.Hex}}/urls/{{.Id.Hex}}?token='+ token, function(response){
 	    	var records = JSON.parse(response);
 	    	// Ad this data to table
 	    	$('.records').append((compiled({'records': records})))
-	
+
 	    	// Collect chart data
 	    	chartData = []
 	    	$.each(records, function(i, url_record){
-	    		chartData[i] = {
-	    			date: url_record["DateCreated"],
-	    			time: url_record["Time"]
-	    		};
+	    		chartData[i] = [Date.parse(url_record["DateCreated"]), url_record["Time"]];
 	    	});
 
-	    	setTimeout(function(){
-	    		new Morris.Line({
-					// ID of the element in which to draw the chart.
-					element: 'urlDetailChart',
-					// Chart data records -- each entry in this array corresponds to a point on
-					// the chart.
-					data: chartData,
-					// The name of the data record attribute that contains x-values.
-					xkey: 'date',
-					// A list of names of data record attributes that contain y-values.
-					ykeys: ['time'],
-					// Labels for the ykeys -- will be displayed when you hover over the
-					// chart.
-					labels: ['Response Time']
-				});
-	    	}, 100);
-  		});
+		    setTimeout(function(){
+	        $('#urlDetailChart').highcharts({
+	            chart: {
+	                zoomType: 'x'
+	            },
+	            title: {
+	                text: 'Url Response Time Change Over Time'
+	            },
+	            subtitle: {
+	                text: document.ontouchstart === undefined ?
+	                        'Click and drag in the plot area to zoom in' : 'Pinch the chart to zoom in'
+	            },
+	            xAxis: {
+	                type: 'datetime'
+	            },
+	            yAxis: {
+	                title: {
+	                    text: 'Exchange rate'
+	                }
+	            },
+	            legend: {
+	                enabled: false
+	            },
+	            plotOptions: {
+	                area: {
+	                    fillColor: {
+	                        linearGradient: {
+	                            x1: 0,
+	                            y1: 0,
+	                            x2: 0,
+	                            y2: 1
+	                        },
+	                        stops: [
+	                            [0, Highcharts.getOptions().colors[0]],
+	                            [1, Highcharts.Color(Highcharts.getOptions().colors[0]).setOpacity(0).get('rgba')]
+	                        ]
+	                    },
+	                    marker: {
+	                        radius: 2
+	                    },
+	                    lineWidth: 1,
+	                    states: {
+	                        hover: {
+	                            lineWidth: 1
+	                        }
+	                    },
+	                    threshold: null
+	                }
+	            },
+
+	            series: [{
+	                type: 'area',
+	                name: 'Response Time',
+	                data: chartData
+	            }]
+	        });
+	  		}, 200);
+	    });
 	});
 </script>
