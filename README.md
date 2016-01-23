@@ -3,10 +3,6 @@ Gotcha
 
 Gotcha is an api benchmark tool that let's you monitor your api endpoints by response time. You can simply fetch all the recorded urls on different date times and see how the response time changes.
 
-Here is a sample screenshot.
-
-
-
 Features
 --------
 - Add application
