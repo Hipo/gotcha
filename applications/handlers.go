@@ -242,13 +242,14 @@ func UrlDeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func FetchURL(channel chan int, url string, UrlId bson.ObjectId) {
+func FetchURL(channel chan bool, url string, UrlId bson.ObjectId) {
 	time_start := time.Now()
 	response, err := http.Get(url)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+
 	defer response.Body.Close()
 	urlRecord := UrlRecord{}
 	urlRecordp := &urlRecord
@@ -257,15 +258,27 @@ func FetchURL(channel chan int, url string, UrlId bson.ObjectId) {
 	urlRecordp.StatusCode = response.Status
 	urlRecordp.Time = time.Since(time_start).Seconds()
 	urlRecordp.CreateUrlRecord()
-	channel <- 1
+	channel <- true
+	fmt.Println(url)
 	return
 }
 
-func PostCallback(channel chan int, count int, url string, urls string) {
+func PostCallback(channel chan bool, count int, url string, applicationId string) {
+	_url := Url{}
+	var urls []Url
+
 	for i := 0; i < count; i++ {
 		<-channel
 	}
-	var jsonUrls = []byte(urls)
+	mongo.Find(_url, bson.M{"application_id": bson.ObjectIdHex(applicationId)}).All(&urls)
+	urlList := make([]map[string]interface{}, len(urls))
+
+	for i := 0; i < len(urls); i++ {
+		urlList = append(urlList, urls[i].Serialize())
+	}
+	urlJSON, _ := json.Marshal(urlList)
+	urlJSONstring := string(urlJSON)
+	var jsonUrls = []byte(urlJSONstring)
 	http.Post(url, "application/json", bytes.NewBuffer(jsonUrls))
 }
 
@@ -290,14 +303,12 @@ func FetchApplicationURLs(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
-	channel := make(chan int, len(urls))
-	urlJSON, _ := json.Marshal(&urls)
-	urlJSONString := string(urlJSON)
+	channel := make(chan bool)
 
 	for i := 0; i < len(urls); i++ {
 		go FetchURL(channel, urls[i].Url, urls[i].Id)
 	}
 
-	go PostCallback(channel, len(urls), application.CallbackUrl, urlJSONString)
+	go PostCallback(channel, len(urls), application.CallbackUrl, applicationId)
 
 }

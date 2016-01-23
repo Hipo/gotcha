@@ -9,9 +9,8 @@
           <button  id='fetchUrls' class='btn btn-lg btn-primary'>Fetch URLs</button>
           <button data-toggle="modal" id="addUrl" data-target=".bs-example-modal-lg" class='btn btn-lg btn-danger'>Add URL</button>
           <button data-toggle="modal" id="callBack" data-target=".modal2" class='btn btn-lg btn-primary'>Add Callback</button>
-          <h4>Callback Url: {{.CallbackUrl}}</h4>
-          <h4 class='token'>Token: </h4>
-          <h4 class='token'>Token: </h4>
+          <button data-toggle="modal" id="details" data-target=".modal3" class='btn btn-lg btn-danger'>Credentials</button>
+
 
           <div class="table-responsive">
             <table class="table table-striped">
@@ -82,6 +81,24 @@
     </div>
   </div>
   </div>
+  <div class="modal fade modal3" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="exampleModalLabel">Details</h4>
+      </div>
+      <div class="modal-body">
+          <h4>Callback Url: {{.CallbackUrl}}</h4>
+          <h4 class='fetchurl'></h4>
+          <h4 class='token'></h4>
+
+      </div>
+    </div>
+  </div>
+  </div>
+
+
 </body>
 
 
@@ -92,6 +109,10 @@
 
   $(function(){
     var token = Cookies.get('gotcha_token')
+    var fetch_url = '/api/applications/{{.Id.Hex}}/fetch?token=' + token
+    $('.fetchurl').html('Fetch URL: ' + fetch_url)
+    $('.token').html('Token: ' + token)
+
     $.get('/api/applications/{{.Id.Hex}}/urls?token='+ token, function(response){
       var urls = JSON.parse(response)
       var compiled = _.template('<% _.forEach(urls, function(url) { %>  <tr><td><%= url.Title %></td><td><A href=<%= url.Url %>><%= url.Url.substring(0, 50) %></a></td><td><%= url.Faster %></td><td><%= (url.Last * 1000).toFixed(3) %>ms</td></td><td><%= (url.Previous * 1000).toFixed(3)%>ms</td><td><%= url.Time %></td><td><%= url.Status %></td><td><button data-id="<%= url.Id %>" class=" remove glyphicon glyphicon-remove" aria-hidden="true"></button></td></tr><% }); %>');
