@@ -285,7 +285,7 @@ func UrlDetailHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(serializedUrlRecords)
 }
 
-func FetchURL(channel chan int, url string, UrlId bson.ObjectId) {
+func FetchURL(channel chan bool, url string, UrlId bson.ObjectId) {
 	time_start := time.Now()
 	response, err := http.Get(url)
 	if err != nil {
