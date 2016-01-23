@@ -43,11 +43,11 @@ func (a Application) Serialize() map[string]string {
 }
 
 type Url struct {
-	Id            bson.ObjectId       `json:"id" bson:"_id"`
-	Url           string              `json:"url" bson:"url"`
-	Title         string              `json:"title" bson:"title"`
-	ApplicationId bson.ObjectId       `json:"application_id" bson:"application_id"`
-	Headers       []map[string]string `json:"headers" bson:"headers"`
+	Id            bson.ObjectId     `json:"id" bson:"_id"`
+	Url           string            `json:"url" bson:"url"`
+	Title         string            `json:"title" bson:"title"`
+	ApplicationId bson.ObjectId     `json:"application_id" bson:"application_id"`
+	Headers       map[string]string `json:"headers" bson:"headers"`
 }
 
 func (u Url) Collection() string { return "urls" }
@@ -97,7 +97,7 @@ func (r *UrlRecord) Serialize() map[string]interface{} {
 	bundle["Time"] = r.Time
 	bundle["StatusCode"] = r.StatusCode
 	bundle["DateCreated"] = r.DateCreated
-	
+
 	return bundle
 }
 

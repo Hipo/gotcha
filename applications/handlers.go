@@ -285,9 +285,15 @@ func UrlDetailHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(serializedUrlRecords)
 }
 
-func FetchURL(channel chan bool, url string, UrlId bson.ObjectId) {
+func FetchURL(channel chan bool, url Url, UrlId bson.ObjectId) {
 	time_start := time.Now()
-	response, err := http.Get(url)
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", url.Url, nil)
+	for k, v := range url.Headers {
+		req.Header.Set(k, v)
+	}
+	response, err := client.Do(req)
+
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -302,7 +308,6 @@ func FetchURL(channel chan bool, url string, UrlId bson.ObjectId) {
 	urlRecordp.Time = time.Since(time_start).Seconds()
 	urlRecordp.CreateUrlRecord()
 	channel <- true
-	fmt.Println(url)
 	return
 }
 
@@ -349,7 +354,7 @@ func FetchApplicationURLs(w http.ResponseWriter, r *http.Request) {
 	channel := make(chan bool)
 
 	for i := 0; i < len(urls); i++ {
-		go FetchURL(channel, urls[i].Url, urls[i].Id)
+		go FetchURL(channel, urls[i], urls[i].Id)
 	}
 
 	go PostCallback(channel, len(urls), application.CallbackUrl, applicationId)
