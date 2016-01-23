@@ -288,26 +288,35 @@ func UrlDetailHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func FetchURL(channel chan bool, url Url, UrlId bson.ObjectId) {
-	time_start := time.Now()
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url.Url, nil)
-	for k, v := range url.Headers {
-		req.Header.Set(k, v)
-	}
-	response, err := client.Do(req)
-
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+	for k, v := range url.Headers {
+		req.Header.Set(k, v)
+	}
+	time_start := time.Now()
+	statusCode := ""
+	for i := 0; i < 5; i++ {
+		response, err := client.Do(req)
+		defer response.Body.Close()
+		statusCode = response.Status
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 
-	defer response.Body.Close()
+	}
+	timeSpent := time.Since(time_start).Seconds() / 5
+
 	urlRecord := UrlRecord{}
 	urlRecordp := &urlRecord
 	urlRecordp.Id = bson.NewObjectId()
 	urlRecordp.UrlId = UrlId
-	urlRecordp.StatusCode = response.Status
-	urlRecordp.Time = time.Since(time_start).Seconds()
+	urlRecordp.StatusCode = statusCode
+	urlRecordp.Time = timeSpent
 	urlRecordp.CreateUrlRecord()
 	channel <- true
 	return
