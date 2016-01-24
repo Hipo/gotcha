@@ -9,6 +9,7 @@ import (
 	"github.com/hipo/gotcha/users"
 	"gopkg.in/mgo.v2/bson"
 	"io/ioutil"
+	"math"
 	"net/http"
 	"text/template"
 	"time"
@@ -287,7 +288,40 @@ func UrlDetailHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(serializedUrlRecords)
 }
 
-func FetchURL(channel chan bool, url Url, UrlId bson.ObjectId) {
+func AvarageAccordingStandardDeviation(timelist []float64, mean float64, deviation float64) float64 {
+	max := mean + deviation
+	min := mean - deviation
+
+	count := 0.0
+	sum := 0.0
+
+	for i := range timelist {
+		if (timelist[i] < max) || (timelist[i] > min) {
+			count = count + 1
+			sum = sum + timelist[i]
+		}
+	}
+	avarage := sum / count
+	return avarage
+}
+
+func CalculateStandardDeviation(timelist []float64) (float64, float64) {
+	total := 0.0
+	variance := 0.0
+	for i := 0; i < len(timelist); i++ {
+		total = total + timelist[i]
+	}
+
+	mean := total / float64(len(timelist))
+	for i := 0; i < len(timelist); i++ {
+		variance += math.Pow((timelist[i] - mean), 2.0)
+	}
+	variance = variance / (float64(len(timelist)) - 1.0)
+	deviation := math.Sqrt(variance)
+	return deviation, mean
+}
+
+func FetchThread(url Url, timelist chan float64, statusList chan string) {
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", url.Url, nil)
 	if err != nil {
@@ -298,25 +332,38 @@ func FetchURL(channel chan bool, url Url, UrlId bson.ObjectId) {
 		req.Header.Set(k, v)
 	}
 	time_start := time.Now()
+	response, err := client.Do(req)
+	defer response.Body.Close()
+	timeSpent := time.Since(time_start).Seconds()
+	timelist <- timeSpent
+	fmt.Println(timeSpent)
+	statusList <- response.Status
+}
+
+func FetchURL(channel chan bool, url Url, UrlId bson.ObjectId) {
 	statusCode := ""
-	for i := 0; i < 5; i++ {
-		response, err := client.Do(req)
-		defer response.Body.Close()
-		statusCode = response.Status
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+	tryCount := 15
+	timelist := make(chan float64)
+	statusList := make(chan string)
 
+	times := make([]float64, tryCount)
+
+	for i := 0; i < tryCount; i++ {
+		go FetchThread(url, timelist, statusList)
 	}
-	timeSpent := time.Since(time_start).Seconds() / 5
-
+	for i := 0; i < tryCount; i++ {
+		time := <-timelist
+		times[i] = time
+	}
+	statusCode = <-statusList
+	deviation, mean := CalculateStandardDeviation(times)
+	avarageTime := AvarageAccordingStandardDeviation(times, mean, deviation)
 	urlRecord := UrlRecord{}
 	urlRecordp := &urlRecord
 	urlRecordp.Id = bson.NewObjectId()
 	urlRecordp.UrlId = UrlId
 	urlRecordp.StatusCode = statusCode
-	urlRecordp.Time = timeSpent
+	urlRecordp.Time = avarageTime
 	urlRecordp.CreateUrlRecord()
 	channel <- true
 	return
