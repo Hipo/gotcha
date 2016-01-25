@@ -420,6 +420,7 @@ func FetchApplicationURLs(w http.ResponseWriter, r *http.Request) {
 	channel := make(chan bool)
 
 	for i := 0; i < len(urls); i++ {
+		time.Sleep(1 * time.Second)
 		go FetchURL(channel, urls[i], urls[i].Id)
 	}
 
