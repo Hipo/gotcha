@@ -9,5 +9,5 @@ import (
 func main() {
 	router := NewRouter()
 	mongo.Connect(Config.DbHostString(), Config.DbName)
-	log.Fatal(http.ListenAndServe(":8060", router))
+	log.Fatal(http.ListenAndServe(":8080", router))
 }
