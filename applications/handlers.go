@@ -179,6 +179,7 @@ func ApplicationDeleteHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func UrlListHandler(w http.ResponseWriter, r *http.Request) {
+
 	url := Url{}
 	var urls []Url
 	vars := mux.Vars(r)
@@ -190,17 +191,18 @@ func UrlListHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(403)
 		return
 	}
+
 	err := mongo.Find(url, bson.M{"application_id": bson.ObjectIdHex(applicationId)}).All(&urls)
 	if err != nil {
 		w.WriteHeader(404)
 		return
 	}
 	serializedUrls := make([]map[string]interface{}, len(urls))
-
 	for i, element := range urls {
 		serializedUrls[i] = element.Serialize()
 	}
-	json.NewEncoder(w).Encode(serializedUrls)
+
+	err = json.NewEncoder(w).Encode(serializedUrls)
 }
 
 func UrlAddHandler(w http.ResponseWriter, r *http.Request) {
@@ -333,6 +335,11 @@ func FetchThread(url Url, timelist chan float64, statusList chan string) {
 	}
 	time_start := time.Now()
 	response, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Couldn't connect to server")
+		fmt.Println(err)
+		return
+	}
 	defer response.Body.Close()
 	timeSpent := time.Since(time_start).Seconds()
 	timelist <- timeSpent
@@ -342,7 +349,7 @@ func FetchThread(url Url, timelist chan float64, statusList chan string) {
 
 func FetchURL(channel chan bool, url Url, UrlId bson.ObjectId) {
 	statusCode := ""
-	tryCount := 15
+	tryCount := 3
 	timelist := make(chan float64)
 	statusList := make(chan string)
 
