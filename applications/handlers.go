@@ -356,6 +356,7 @@ func FetchURL(channel chan bool, url Url, UrlId bson.ObjectId) {
 	times := make([]float64, tryCount)
 
 	for i := 0; i < tryCount; i++ {
+		time.Sleep(2 * time.Second)
 		go FetchThread(url, timelist, statusList)
 	}
 	for i := 0; i < tryCount; i++ {
