@@ -47,6 +47,7 @@ type Url struct {
 	Url           string            `json:"url" bson:"url"`
 	Title         string            `json:"title" bson:"title"`
 	WaitTime      int               `json:"wait_time" bson:wait_time"`
+	TryCount      int               `json:"try_count" bson:try_count"`
 	ApplicationId bson.ObjectId     `json:"application_id" bson:"application_id"`
 	Headers       map[string]string `json:"headers" bson:"headers"`
 }
@@ -70,6 +71,7 @@ func (u *Url) Serialize() (map[string]interface{}, error) {
 	bundle["Url"] = u.Url
 	bundle["Title"] = u.Title
 	bundle["WaitTime"] = u.WaitTime
+	bundle["TryCount"] = u.WaitTime
 	bundle["ApplicationId"] = u.ApplicationId
 	if len(records) >= 1 {
 		record1 := records[0]

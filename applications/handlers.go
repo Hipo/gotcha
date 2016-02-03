@@ -65,21 +65,21 @@ func UrlDetailTemplateHandler(w http.ResponseWriter, r *http.Request) {
 	t.Execute(w, urlp)
 }
 
-func IsAuthenticated(authToken string, applicationId string) bool {
+func IsAuthenticated(authToken string, applicationId string) (bool, error) {
 	user := users.User{}
 	application := Application{}
 	err := mongo.Find(user, bson.M{"token": authToken}).One(&user)
 	if err != nil {
-		panic(err)
+		return false, err
 	}
 	err = mongo.Find(application, bson.M{"_id": bson.ObjectIdHex(applicationId)}).One(&application)
 	if err != nil {
-		panic(err)
+		return false, err
 	}
 	if application.OwnerId != user.Id {
-		return false
+		return false, nil
 	}
-	return true
+	return true, nil
 }
 
 func ApplicationListHandler(w http.ResponseWriter, r *http.Request) {
@@ -144,7 +144,7 @@ func AddCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 	}
 
-	isAuthenticated := IsAuthenticated(token, applicationId)
+	isAuthenticated, err := IsAuthenticated(token, applicationId)
 	if isAuthenticated != true {
 		w.WriteHeader(403)
 		return
@@ -163,13 +163,13 @@ func ApplicationDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	applicationId := vars["applicationId"]
 	token := r.FormValue("token")
 
-	isAuthenticated := IsAuthenticated(token, applicationId)
+	isAuthenticated, err := IsAuthenticated(token, applicationId)
 	if isAuthenticated != true {
 		w.WriteHeader(403)
 		return
 	}
 
-	err := mongo.Delete(application, bson.M{"_id": bson.ObjectIdHex(applicationId)})
+	err = mongo.Delete(application, bson.M{"_id": bson.ObjectIdHex(applicationId)})
 	if err != nil {
 		w.WriteHeader(400)
 		fmt.Println(err)
@@ -186,13 +186,13 @@ func UrlListHandler(w http.ResponseWriter, r *http.Request) {
 	applicationId := vars["applicationId"]
 	token := r.FormValue("token")
 
-	isAuthenticated := IsAuthenticated(token, applicationId)
+	isAuthenticated, err := IsAuthenticated(token, applicationId)
 	if isAuthenticated != true {
 		w.WriteHeader(403)
 		return
 	}
 
-	err := mongo.Find(url, bson.M{"application_id": bson.ObjectIdHex(applicationId)}).All(&urls)
+	err = mongo.Find(url, bson.M{"application_id": bson.ObjectIdHex(applicationId)}).All(&urls)
 	if err != nil {
 		w.WriteHeader(404)
 		return
@@ -216,7 +216,7 @@ func UrlAddHandler(w http.ResponseWriter, r *http.Request) {
 	applicationId := vars["applicationId"]
 	token := r.FormValue("token")
 
-	isAuthenticated := IsAuthenticated(token, applicationId)
+	isAuthenticated, err := IsAuthenticated(token, applicationId)
 
 	if isAuthenticated != true {
 		w.WriteHeader(403)
@@ -250,13 +250,13 @@ func UrlDeleteHandler(w http.ResponseWriter, r *http.Request) {
 	urlId := vars["urlId"]
 
 	token := r.FormValue("token")
-	isAuthenticated := IsAuthenticated(token, applicationId)
+	isAuthenticated, err := IsAuthenticated(token, applicationId)
 
 	if isAuthenticated != true {
 		w.WriteHeader(403)
 		return
 	}
-	err := mongo.Delete(url, bson.M{"_id": bson.ObjectIdHex(urlId),
+	err = mongo.Delete(url, bson.M{"_id": bson.ObjectIdHex(urlId),
 		"application_id": bson.ObjectIdHex(applicationId)})
 
 	if err != nil {
@@ -276,12 +276,12 @@ func UrlDetailHandler(w http.ResponseWriter, r *http.Request) {
 	applicationId := vars["applicationId"]
 	token := r.FormValue("token")
 
-	isAuthenticated := IsAuthenticated(token, applicationId)
+	isAuthenticated, err := IsAuthenticated(token, applicationId)
 	if isAuthenticated != true {
 		w.WriteHeader(403)
 		return
 	}
-	err := mongo.Find(url_record, bson.M{"url_id": bson.ObjectIdHex(urlId)}).All(&records)
+	err = mongo.Find(url_record, bson.M{"url_id": bson.ObjectIdHex(urlId)}).All(&records)
 	if err != nil {
 		w.WriteHeader(404)
 		return
@@ -353,7 +353,7 @@ func FetchThread(url Url, timelist chan float64, statusList chan string) {
 
 func FetchURL(channel chan bool, url Url, UrlId bson.ObjectId) {
 	statusCode := ""
-	tryCount := 3
+	tryCount := url.UrlCount
 	timelist := make(chan float64)
 	statusList := make(chan string)
 
@@ -409,7 +409,7 @@ func FetchApplicationURLs(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	applicationId := vars["applicationId"]
 	token := r.FormValue("token")
-	isAuthenticated := IsAuthenticated(token, applicationId)
+	isAuthenticated, err := IsAuthenticated(token, applicationId)
 
 	if isAuthenticated != true {
 		w.WriteHeader(403)
@@ -418,7 +418,7 @@ func FetchApplicationURLs(w http.ResponseWriter, r *http.Request) {
 	url := Url{}
 	application := Application{}
 	var urls []Url
-	err := mongo.Find(url, bson.M{"application_id": bson.ObjectIdHex(applicationId)}).All(&urls)
+	err = mongo.Find(url, bson.M{"application_id": bson.ObjectIdHex(applicationId)}).All(&urls)
 	err = mongo.Find(application, bson.M{"_id": bson.ObjectIdHex(applicationId)}).One(&application)
 
 	if err != nil {
