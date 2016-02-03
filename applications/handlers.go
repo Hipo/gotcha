@@ -102,7 +102,7 @@ func ApplicationListHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(403)
 		return
 	}
-	serializedApplications := make([]map[string]string, len(applications))
+	serializedApplications := make([]map[string]interface{}, len(applications))
 
 	for i, element := range applications {
 		serializedApplications[i] = element.Serialize()
@@ -353,14 +353,13 @@ func FetchThread(url Url, timelist chan float64, statusList chan string) {
 
 func FetchURL(channel chan bool, url Url, UrlId bson.ObjectId) {
 	statusCode := ""
-	tryCount := url.UrlCount
+	tryCount := url.TryCount
 	timelist := make(chan float64)
 	statusList := make(chan string)
-
 	times := make([]float64, tryCount)
 
 	for i := 0; i < tryCount; i++ {
-		time.Sleep(2 * time.Second)
+		time.Sleep(time.Duration(url.WaitTime) * time.Second)
 		go FetchThread(url, timelist, statusList)
 	}
 	for i := 0; i < tryCount; i++ {
@@ -428,7 +427,7 @@ func FetchApplicationURLs(w http.ResponseWriter, r *http.Request) {
 	channel := make(chan bool)
 
 	for i := 0; i < len(urls); i++ {
-		time.Sleep(1 * time.Second)
+		time.Sleep(time.Duration(application.WaitTime) * time.Second)
 		go FetchURL(channel, urls[i], urls[i].Id)
 	}
 

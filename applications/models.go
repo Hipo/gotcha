@@ -11,6 +11,7 @@ type Application struct {
 	Id          bson.ObjectId `json:"id" bson:"_id"`
 	OwnerId     bson.ObjectId `json: "owner_id" bson:"owner_id"`
 	CallbackUrl string        `json: "callback_url" bson:"callbackurl"`
+	WaitTime    int           `json: "wait_time" bson"callbackurl"`
 	Name        string        `json:"name" bson:"name"`
 }
 
@@ -18,7 +19,7 @@ func (a Application) Collection() string { return "applications" }
 func (a Application) CreateApplication() error {
 	err := mongo.Insert(a)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	return nil
 }
@@ -33,11 +34,12 @@ func (a Application) UrlCount() string {
 	return fmt.Sprintf("%v", count)
 }
 
-func (a Application) Serialize() map[string]string {
-	return map[string]string{
+func (a Application) Serialize() map[string]interface{} {
+	return map[string]interface{}{
 		"Name":        a.Name,
 		"Id":          a.Id.Hex(),
 		"Count":       a.UrlCount(),
+		"WaitTime":    a.WaitTime,
 		"CallbackUrl": a.CallbackUrl,
 	}
 }
