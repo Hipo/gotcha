@@ -46,6 +46,7 @@ type Url struct {
 	Id            bson.ObjectId     `json:"id" bson:"_id"`
 	Url           string            `json:"url" bson:"url"`
 	Title         string            `json:"title" bson:"title"`
+	WaitTime      int               `json:"wait_time" bson:wait_time"`
 	ApplicationId bson.ObjectId     `json:"application_id" bson:"application_id"`
 	Headers       map[string]string `json:"headers" bson:"headers"`
 }
@@ -57,17 +58,18 @@ func (u Url) CreateUrl() error {
 	return nil
 }
 
-func (u *Url) Serialize() map[string]interface{} {
+func (u *Url) Serialize() (map[string]interface{}, error) {
 	record := UrlRecord{}
 	records := []UrlRecord{}
 	err := mongo.Find(record, bson.M{"url_id": bson.ObjectId(u.Id)}).Sort("-date_created").Limit(2).All(&records)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	bundle := make(map[string]interface{})
 	bundle["Id"] = u.Id
 	bundle["Url"] = u.Url
 	bundle["Title"] = u.Title
+	bundle["WaitTime"] = u.WaitTime
 	bundle["ApplicationId"] = u.ApplicationId
 	if len(records) >= 1 {
 		record1 := records[0]
@@ -81,7 +83,7 @@ func (u *Url) Serialize() map[string]interface{} {
 		bundle["Previous"] = record2.Time
 		bundle["Faster"] = record1.Time < record2.Time
 	}
-	return bundle
+	return bundle, nil
 }
 
 type UrlRecord struct {

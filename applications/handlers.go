@@ -199,10 +199,14 @@ func UrlListHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	serializedUrls := make([]map[string]interface{}, len(urls))
 	for i, element := range urls {
-		serializedUrls[i] = element.Serialize()
+		serializedUrls[i], err = element.Serialize()
+	}
+	err = json.NewEncoder(w).Encode(serializedUrls)
+	if err != nil {
+		w.WriteHeader(400)
+		return
 	}
 
-	err = json.NewEncoder(w).Encode(serializedUrls)
 }
 
 func UrlAddHandler(w http.ResponseWriter, r *http.Request) {
@@ -388,7 +392,11 @@ func PostCallback(channel chan bool, count int, url string, applicationId string
 	urlList := make([]map[string]interface{}, len(urls))
 
 	for i := 0; i < len(urls); i++ {
-		urlList = append(urlList, urls[i].Serialize())
+		serializedUrl, err := urls[i].Serialize()
+		urlList = append(urlList, serializedUrl)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 	urlJSON, _ := json.Marshal(urlList)
 	urlJSONstring := string(urlJSON)
