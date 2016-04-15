@@ -43,12 +43,25 @@
         <div>
           <div class="form-group">
             <label for="recipient-name" class="control-label">Title</label>
-            <input type="text" class="form-control" id="title" />
+            <input type="text" placeholder="Title for the action" class="form-control" id="title" />
           </div>
           <div class="form-group">
             <label for="message-text" class="control-label">Url</label>
-            <input type='text' class="form-control" id="url" />
+            <input placeholder="Example: http://xyz.com" type='text' class="form-control" id="url" />
           </div>
+          <div class="form-group">
+            <label for="message-text" class="control-label">Fetch Count</label>
+            <input type='text' placeholder="Try count for url for each fetch" class="form-control" id="fetch_count" />
+          </div>
+
+          <div class="form-group">
+            <label for="message-text" class="control-label">Fetch Sleep</label>
+            <input type='text' placeholder="Time to wait between fetchs" class="form-control" id="fetch_sleep" />
+          </div>
+
+
+
+
 		  <div class="form-group">
             <label class="control-label">Headers</label>
 			<button class="btn btn-primary pull-right" id="btn-add-header">Add Header</button>
@@ -155,7 +168,17 @@
 		  return r;
 	  }, {});
 
-	  var data = {"url": $('#url').val(), "title": $("#title").val(), "headers": headers }
+
+   if (!$('#url').val().indexOf("://" > -1)){
+      alert("Please give us a valid url!")
+      return
+    }
+
+	  var data = {"url": $('#url').val(), 
+                "title": $("#title").val(), 
+                "headers": headers,
+                "try_count": parseInt($("#fetch_count").val()),
+                "wait_time": parseInt($("#fetch_sleep").val())}
     $.ajax({
     url: '/api/applications/{{.Id.Hex}}/urls?token=' + token,
     type: "POST",

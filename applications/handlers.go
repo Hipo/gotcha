@@ -230,7 +230,6 @@ func UrlAddHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(403)
 		return
 	}
-
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(400)
@@ -239,6 +238,7 @@ func UrlAddHandler(w http.ResponseWriter, r *http.Request) {
 	urlp := &Url{WaitTime:100,
 		    TryCount:10}
 	err = json.Unmarshal(body, urlp)
+	fmt.Println(body, urlp)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -358,6 +358,7 @@ func FetchThread(url Url, timelist chan float64, statusList chan string) {
 	}
 	defer response.Body.Close()
 	timeSpent := time.Since(time_start).Seconds()
+	fmt.Println("hello")
 	timelist <- timeSpent
 	statusList <- response.Status
 }
