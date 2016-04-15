@@ -201,8 +201,16 @@ func UrlListHandler(w http.ResponseWriter, r *http.Request) {
 	for i, element := range urls {
 		serializedUrls[i], err = element.Serialize()
 	}
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(400)
+		return
+	}
+
+
 	err = json.NewEncoder(w).Encode(serializedUrls)
 	if err != nil {
+		fmt.Println(err)
 		w.WriteHeader(400)
 		return
 	}
@@ -228,12 +236,16 @@ func UrlAddHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
-	urlp := &Url{}
+	urlp := &Url{WaitTime:100,
+		    TryCount:10}
 	err = json.Unmarshal(body, urlp)
 	if err != nil {
+		fmt.Println(err)
 	}
 
 	urlp.ApplicationId = bson.ObjectIdHex(applicationId)
+
+
 	err = urlp.CreateUrl()
 
 	if err != nil {
@@ -347,19 +359,22 @@ func FetchThread(url Url, timelist chan float64, statusList chan string) {
 	defer response.Body.Close()
 	timeSpent := time.Since(time_start).Seconds()
 	timelist <- timeSpent
-	fmt.Println(timeSpent)
 	statusList <- response.Status
 }
 
 func FetchURL(channel chan bool, url Url, UrlId bson.ObjectId) {
+
 	statusCode := ""
 	tryCount := url.TryCount
+	if tryCount == 0 {
+		tryCount = 1
+	}
 	timelist := make(chan float64)
 	statusList := make(chan string)
 	times := make([]float64, tryCount)
 
 	for i := 0; i < tryCount; i++ {
-		time.Sleep(time.Duration(url.WaitTime) * time.Second)
+		time.Sleep(time.Duration(url.WaitTime) * time.Millisecond)
 		go FetchThread(url, timelist, statusList)
 	}
 	for i := 0; i < tryCount; i++ {
@@ -427,7 +442,7 @@ func FetchApplicationURLs(w http.ResponseWriter, r *http.Request) {
 	channel := make(chan bool)
 
 	for i := 0; i < len(urls); i++ {
-		time.Sleep(time.Duration(application.WaitTime) * time.Second)
+		time.Sleep(time.Duration(application.WaitTime) * time.Millisecond)
 		go FetchURL(channel, urls[i], urls[i].Id)
 	}
 

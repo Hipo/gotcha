@@ -17,20 +17,15 @@ type Routes []Route
 
 var routes = Routes{
 	Route{},
-
 	Route{"ApplicationList", "GET", "/api/applications", applications.ApplicationListHandler},
 	Route{"ApplicationDelete", "DELETE", "/api/applications/{applicationId}", applications.ApplicationDeleteHandler},
 	Route{"AddCallback", "POST", "/api/applications/{applicationId}/addcallback", applications.AddCallbackHandler},
-
 	Route{"PostApplication", "POST", "/api/applications", applications.ApplicationAddHandler},
 	Route{"UrlList", "GET", "/api/applications/{applicationId}/urls", applications.UrlListHandler},
-
 	Route{"PostUrl", "POST", "/api/applications/{applicationId}/urls", applications.UrlAddHandler},
-
 	Route{"FetchUrls", "GET", "/api/applications/{applicationId}/fetch", applications.FetchApplicationURLs},
 	Route{"UrlDeleteHandler", "DELETE", "/api/applications/{applicationId}/urls/{urlId}", applications.UrlDeleteHandler},
 	Route{"UrlDetailHandler", "GET", "/api/applications/{applicationId}/urls/{urlId}", applications.UrlDetailHandler},
-
 	Route{"SignUp", "POST", "/api/signup", users.SignUpHandler},
 	Route{"Login", "POST", "/api/login", users.LoginHandler},
 

@@ -73,7 +73,7 @@ func (u *Url) Serialize() (map[string]interface{}, error) {
 	bundle["Url"] = u.Url
 	bundle["Title"] = u.Title
 	bundle["WaitTime"] = u.WaitTime
-	bundle["TryCount"] = u.WaitTime
+	bundle["TryCount"] = u.TryCount
 	bundle["ApplicationId"] = u.ApplicationId
 	if len(records) >= 1 {
 		record1 := records[0]
@@ -87,6 +87,7 @@ func (u *Url) Serialize() (map[string]interface{}, error) {
 		bundle["Previous"] = record2.Time
 		bundle["Faster"] = record1.Time < record2.Time
 	}
+
 	return bundle, nil
 }
 
