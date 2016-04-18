@@ -9,7 +9,17 @@
 $(function(){
     $('.logout').on('click', function(){
         Cookies.remove('gotcha_token')
-    })
+})
+var token = Cookies.get('gotcha_token')
+if (!token){
+    window.location.replace('/login')
+}
+else{
+    window.location.replace('/applications')
+
+
+    }
+
 })
 </script>
 {{ end }}
