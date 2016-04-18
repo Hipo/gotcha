@@ -408,8 +408,7 @@ func PostCallback(channel chan bool, count int, url string, applicationId string
 	applicationUrl := "http://gotcha.hipo.biz/applications/" + applicationId + "/urls"
 	message := fmt.Sprintf("Benchmark completed like a boss! <%s|Check details.>", applicationUrl)
 	callbackData := map[string]string{"username": "gotcha",
-					  "text": message,
-		                          "icon_emoji": ":ghost:"}
+					  "text": message}
 
 
 	callbackDataJSON, _ := json.Marshal(callbackData)
