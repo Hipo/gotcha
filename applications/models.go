@@ -64,7 +64,7 @@ func (u Url) CreateUrl() error {
 func (u *Url) Serialize() (map[string]interface{}, error) {
 	record := UrlRecord{}
 	records := []UrlRecord{}
-	err := mongo.Find(record, bson.M{"url_id": bson.ObjectId(u.Id)}).Sort("-date_created").Limit(2).All(&records)
+		err := mongo.Find(record, bson.M{"url_id": bson.ObjectId(u.Id)}).Sort("-date_created").Limit(2).All(&records)
 	if err != nil {
 		return nil, err
 	}
@@ -75,13 +75,16 @@ func (u *Url) Serialize() (map[string]interface{}, error) {
 	bundle["WaitTime"] = u.WaitTime
 	bundle["TryCount"] = u.TryCount
 	bundle["ApplicationId"] = u.ApplicationId
+
 	if len(records) >= 1 {
 		record1 := records[0]
 		bundle["Time"] = record1.DateCreated
+		bundle["Last"] = record1.Time
 		bundle["Status"] = record1.StatusCode
 	}
 
 	if len(records) >= 2 {
+
 		record1, record2 := records[0], records[1]
 		bundle["Previous"] = record2.Time
 		bundle["Faster"] = record1.Time < record2.Time

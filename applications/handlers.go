@@ -318,8 +318,11 @@ func AvarageAccordingStandardDeviation(timelist []float64, mean float64, deviati
 			sum = sum + timelist[i]
 		}
 	}
-	avarage := sum / count
-	return avarage
+	if (count > 0) {
+		avarage := sum / count
+		return avarage
+	}
+	return 0.0
 }
 
 func CalculateStandardDeviation(timelist []float64) (float64, float64) {
@@ -340,7 +343,7 @@ func CalculateStandardDeviation(timelist []float64) (float64, float64) {
 
 
 func FetchThread(url Url, timelist chan float64, statusList chan string) {
-	client := &http.Client{Timeout:time.Duration(5 * time.Second)}
+	client := &http.Client{Timeout:time.Duration(30 * time.Second)}
 	req, err := http.NewRequest("GET", url.Url, nil)
 	if err != nil {
 		fmt.Println(err)
@@ -354,11 +357,12 @@ func FetchThread(url Url, timelist chan float64, statusList chan string) {
 
 	if err != nil {
 		timelist <- 100
-		statusList <- "404"
+		statusList <- "503"
 		return
 	}
 	defer response.Body.Close()
 	timeSpent := time.Since(time_start).Seconds()
+	fmt.Println("url:", timeSpent)
 	timelist <- timeSpent
 	statusList <- response.Status
 }
@@ -385,7 +389,7 @@ func FetchURL(channel chan bool, url Url, UrlId bson.ObjectId) {
 	statusCode = <-statusList
 	deviation, mean := CalculateStandardDeviation(times)
 	avarageTime := AvarageAccordingStandardDeviation(times, mean, deviation)
-	urlRecord := UrlRecord{Time: 100, StatusCode: "404"}
+	urlRecord := UrlRecord{Time: 100, StatusCode: ""}
 	urlRecordp := &urlRecord
 	urlRecordp.Id = bson.NewObjectId()
 	urlRecordp.UrlId = UrlId
