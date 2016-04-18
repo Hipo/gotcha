@@ -397,26 +397,22 @@ func FetchURL(channel chan bool, url Url, UrlId bson.ObjectId) {
 }
 
 func PostCallback(channel chan bool, count int, url string, applicationId string) {
-	_url := Url{}
-	var urls []Url
 
 	for i := 0; i < count; i++ {
 		<-channel
 	}
-	mongo.Find(_url, bson.M{"application_id": bson.ObjectIdHex(applicationId)}).All(&urls)
-	urlList := make([]map[string]interface{}, len(urls))
+	applicationUrl := "http://gotcha.hipo.biz/applications/" + applicationId + "/urls"
+	message := fmt.Sprintf("Benchmark completed like a boss! <%s|Check details.>", applicationUrl)
+	callbackData := map[string]string{"username": "gotcha",
+					  "text": message,
+		                          "icon_emoji": ":ghost:"}
 
-	for i := 0; i < len(urls); i++ {
-		serializedUrl, err := urls[i].Serialize()
-		urlList = append(urlList, serializedUrl)
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
-	urlJSON, _ := json.Marshal(urlList)
-	urlJSONstring := string(urlJSON)
-	var jsonUrls = []byte(urlJSONstring)
-	http.Post(url, "application/json", bytes.NewBuffer(jsonUrls))
+
+	callbackDataJSON, _ := json.Marshal(callbackData)
+	callbackDataString := string(callbackDataJSON)
+	callbackDataB := []byte(callbackDataString)
+
+	http.Post(url, "application/json", bytes.NewBuffer(callbackDataB))
 }
 
 func FetchApplicationURLs(w http.ResponseWriter, r *http.Request) {
