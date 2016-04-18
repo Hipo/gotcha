@@ -47,6 +47,11 @@
 
 <script>
 $(function(){
+    var token = Cookies.get('gotcha_token')
+    if (token){
+        window.location.replace('/applications')
+    }
+
 
   $('.submit').on('click', function(){
     var email = $('#email').val();
