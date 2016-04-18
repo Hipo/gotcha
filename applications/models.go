@@ -77,7 +77,6 @@ func (u *Url) Serialize() (map[string]interface{}, error) {
 	bundle["ApplicationId"] = u.ApplicationId
 	if len(records) >= 1 {
 		record1 := records[0]
-		bundle["Last"] = record1.Time
 		bundle["Time"] = record1.DateCreated
 		bundle["Status"] = record1.StatusCode
 	}

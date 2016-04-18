@@ -1,2 +1,8 @@
 {{ template "header"}}
 {{ template "footer" }}
+<script>
+var token = Cookies.get('gotcha_token');
+if (token){
+    window.location.replace('/applications');
+}
+</script>
