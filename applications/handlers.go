@@ -411,7 +411,6 @@ func FetchThread(url Url, timelist chan float64, statusList chan string, tryWait
 		return
 	}
 	defer response.Body.Close()
-
 	timeSpent := time.Since(time_start).Seconds()
 	tryWait.Done()
 	timelist <- timeSpent
@@ -503,6 +502,7 @@ func FetchApplicationURLs(w http.ResponseWriter, r *http.Request) {
 	for i := 0; i < len(urls); i++ {
 	        wg.Add(1)
 		go FetchURL(urls[i], urls[i].Id, &wg)
+		wg.Wait()
 	}
 	go PostCallback(len(urls), application.CallbackUrl, applicationId)
 
