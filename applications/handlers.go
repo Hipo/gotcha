@@ -253,6 +253,51 @@ func UrlAddHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func UrlEditHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	vars := mux.Vars(r)
+	urlId := vars["urlId"]
+	var url Url
+	err := mongo.Find(url, bson.M{"_id": bson.ObjectIdHex(urlId)}).One(&url)
+	if err != nil {
+		w.WriteHeader(400)
+		return
+	}
+	applicationId := vars["applicationId"]
+	token := r.FormValue("token")
+	isAuthenticated, err := IsAuthenticated(token, applicationId)
+
+	if isAuthenticated != true {
+		w.WriteHeader(403)
+		return
+	}
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(400)
+		return
+	}
+	urlp := &Url{WaitTime:100,
+		     TryCount:10}
+	err = json.Unmarshal(body, urlp)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	urlp.ApplicationId = bson.ObjectIdHex(applicationId)
+
+	urlQuery := bson.M{"_id": url.Id}
+	updateData := urlp.Deserialize()
+	err = urlp.UpdateUrl(urlQuery, updateData)
+
+	if err != nil {
+		w.WriteHeader(400)
+		return
+	}
+}
+
+
+
 func UrlDeleteHandler(w http.ResponseWriter, r *http.Request) {
 
 	url := Url{}

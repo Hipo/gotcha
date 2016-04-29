@@ -38,7 +38,6 @@ func Insert(m Model) (err error) {
 func Update(m Model,
 	filter_query interface{},
 	update_query interface{}) (err error) {
-
 	return Current.Db.C(m.Collection()).Update(filter_query, update_query)
 }
 
@@ -49,15 +48,12 @@ func Delete(m Model,
 
 var Current = new(Connection)
 
-// Connect to an mgo url
 func Connect(url, database string) {
 	session, err := mgo.Dial(url)
 	if err != nil {
 		panic(err)
 	}
 	db := session.DB(database)
-
 	Current.Session = session
 	Current.Db = db
-	// fmt.Printf("Connected to mongodb on %s, using \"%s\"\n", url, gotcha.Config.DbName)
 }

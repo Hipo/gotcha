@@ -55,11 +55,33 @@ type Url struct {
 }
 
 func (u Url) Collection() string { return "urls" }
+
 func (u Url) CreateUrl() error {
 	u.Id = bson.NewObjectId()
 	mongo.Insert(u)
 	return nil
 }
+
+func (u Url) UpdateUrl(filter_query interface{}, update_data interface{}) error {
+	err := mongo.Update(u, filter_query, update_data)
+	if err != nil {
+		return err
+	}
+	return err
+}
+
+func (u *Url) Deserialize() (map[string] interface{}) {
+	bundle := make(map[string]interface{})
+	bundle["Id"] = u.Id
+	bundle["Url"] = u.Url
+	bundle["Title"] = u.Title
+	bundle["WaitTime"] = u.WaitTime
+	bundle["TryCount"] = u.TryCount
+	bundle["ApplicationId"] = u.ApplicationId
+	bundle["Headers"] = u.Headers
+	return bundle
+}
+
 
 func (u *Url) Serialize() (map[string]interface{}, error) {
 	record := UrlRecord{}
@@ -75,7 +97,7 @@ func (u *Url) Serialize() (map[string]interface{}, error) {
 	bundle["WaitTime"] = u.WaitTime
 	bundle["TryCount"] = u.TryCount
 	bundle["ApplicationId"] = u.ApplicationId
-
+	bundle["Headers"] = u.Headers
 	if len(records) >= 1 {
 		record1 := records[0]
 		bundle["Time"] = record1.DateCreated

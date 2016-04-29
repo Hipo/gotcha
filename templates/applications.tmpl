@@ -55,12 +55,11 @@
     var token = Cookies.get('gotcha_token')
     if (!token){
       window.location.replace('/login')
-
-
     }
+
     $.get('/api/applications?token='+ token, function(response){
       response = JSON.parse(response)
-      var compiled = _.template('<% _.forEach(applications, function(application) { %>  <tr><td><a href="/applications/<%= application.Id %>/urls"><%= application.Name %></a> </td><td><%= application.Count %></td><td><button data-id="<%= application.Id %>" class=" remove glyphicon glyphicon-remove" aria-hidden="true"></button></td></tr><% }); %>');     
+      var compiled = _.template('<% _.forEach(applications, function(application) { %>  <tr><td><a href="/applications/<%= application.Id %>/urls"><%= application.Name %></a> </td><td><%= application.Count %></td><td><button data-id="<%= application.Id %>" class=" remove glyphicon glyphicon-remove" aria-hidden="true"></button></td></tr><% }); %>');
       $('.applications').append((compiled({ 'applications': response})))
        $('.remove').on('click', function(element){
         var removeApplicationId = element.target.dataset.id
@@ -73,24 +72,20 @@
             });
 
       })   
-    })
-  $('.submit-app').on('click', function(){
-    var data = {"name": $('#title').val()}
-    $.ajax({
-    url: '/api/applications?token=' + token,
-    type: "POST",
-    data: JSON.stringify(data),
-    contentType: "application/json",
-    complete: function(){
-        window.location.reload()
-
-      }
     });
-  })
+    $('.submit-app').on('click', function(){
+        var data = {"name": $('#title').val()}
+        $.ajax({
+        url: '/api/applications?token=' + token,
+        type: "POST",
+        data: JSON.stringify(data),
+        contentType: "application/json",
+        complete: function(){
+            window.location.reload()
 
-
-
-
+          }
+        });
+      })
 
   })
   </script>
