@@ -72,13 +72,12 @@ func (u Url) UpdateUrl(filter_query interface{}, update_data interface{}) error 
 
 func (u *Url) Deserialize() (map[string] interface{}) {
 	bundle := make(map[string]interface{})
-	bundle["Id"] = u.Id
-	bundle["Url"] = u.Url
-	bundle["Title"] = u.Title
-	bundle["WaitTime"] = u.WaitTime
-	bundle["TryCount"] = u.TryCount
-	bundle["ApplicationId"] = u.ApplicationId
-	bundle["Headers"] = u.Headers
+	bundle["url"] = u.Url
+	bundle["title"] = u.Title
+	bundle["wait_time"] = u.WaitTime
+	bundle["try_count"] = u.TryCount
+	bundle["application_id"] = u.ApplicationId
+	bundle["headers"] = u.Headers
 	return bundle
 }
 

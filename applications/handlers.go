@@ -267,7 +267,6 @@ func UrlEditHandler(w http.ResponseWriter, r *http.Request) {
 	applicationId := vars["applicationId"]
 	token := r.FormValue("token")
 	isAuthenticated, err := IsAuthenticated(token, applicationId)
-
 	if isAuthenticated != true {
 		w.WriteHeader(403)
 		return
@@ -279,17 +278,17 @@ func UrlEditHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	urlp := &Url{WaitTime:100,
 		     TryCount:10}
+
 	err = json.Unmarshal(body, urlp)
 	if err != nil {
 		fmt.Println(err)
 	}
 
 	urlp.ApplicationId = bson.ObjectIdHex(applicationId)
-
 	urlQuery := bson.M{"_id": url.Id}
 	updateData := urlp.Deserialize()
-	err = urlp.UpdateUrl(urlQuery, updateData)
 
+	err = urlp.UpdateUrl(urlQuery, updateData)
 	if err != nil {
 		w.WriteHeader(400)
 		return
