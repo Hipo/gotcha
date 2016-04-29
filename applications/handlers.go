@@ -411,10 +411,11 @@ func FetchThread(url Url, timelist chan float64, statusList chan string, tryWait
 		return
 	}
 	defer response.Body.Close()
+
 	timeSpent := time.Since(time_start).Seconds()
+	tryWait.Done()
 	timelist <- timeSpent
 	statusList <- response.Status
-	tryWait.Done()
 
 }
 
@@ -436,6 +437,7 @@ func FetchURL(url Url, UrlId bson.ObjectId, wg *sync.WaitGroup) {
 		time.Sleep(time.Duration(url.WaitTime) * time.Millisecond)
 		tryWait.Add(1)
 		go FetchThread(url, timelist, statusList, &tryWait)
+		tryWait.Wait()
 	}
 	for i := 0; i < tryCount; i++ {
 		time := <-timelist
