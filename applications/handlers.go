@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"text/template"
 	"time"
+	"sync"
 )
 
 type Callback struct {
@@ -386,7 +387,7 @@ func CalculateStandardDeviation(timelist []float64) (float64, float64) {
 }
 
 
-func FetchThread(url Url, timelist chan float64, statusList chan string) {
+func FetchThread(url Url, timelist chan float64, statusList chan string, tryWait *sync.WaitGroup) {
 	client := &http.Client{Timeout:time.Duration(30 * time.Second)}
 	req, err := http.NewRequest("GET", url.Url, nil)
 	if err != nil {
@@ -406,33 +407,42 @@ func FetchThread(url Url, timelist chan float64, statusList chan string) {
 	}
 	defer response.Body.Close()
 	timeSpent := time.Since(time_start).Seconds()
-	fmt.Println("url:", timeSpent)
 	timelist <- timeSpent
 	statusList <- response.Status
+	tryWait.Done()
+
 }
 
-func FetchURL(channel chan bool, url Url, UrlId bson.ObjectId) {
+func FetchURL(url Url, UrlId bson.ObjectId, wg *sync.WaitGroup) {
 
 	statusCode := ""
 	tryCount := url.TryCount
 	if tryCount == 0 {
 		tryCount = 1
 	}
+
 	timelist := make(chan float64)
 	statusList := make(chan string)
+	var tryWait sync.WaitGroup
+
 	times := make([]float64, tryCount)
 
 	for i := 0; i < tryCount; i++ {
 		time.Sleep(time.Duration(url.WaitTime) * time.Millisecond)
-		go FetchThread(url, timelist, statusList)
+		tryWait.Add(1)
+		go FetchThread(url, timelist, statusList, &tryWait)
 	}
 	for i := 0; i < tryCount; i++ {
 		time := <-timelist
 		times[i] = time
 	}
 	statusCode = <-statusList
-	deviation, mean := CalculateStandardDeviation(times)
-	avarageTime := AvarageAccordingStandardDeviation(times, mean, deviation)
+
+	avarageTime := times[0]
+	if len(times) > 1 {
+		deviation, mean := CalculateStandardDeviation(times)
+		avarageTime = AvarageAccordingStandardDeviation(times, mean, deviation)
+	}
 	urlRecord := UrlRecord{Time: 100, StatusCode: ""}
 	urlRecordp := &urlRecord
 	urlRecordp.Id = bson.NewObjectId()
@@ -440,15 +450,12 @@ func FetchURL(channel chan bool, url Url, UrlId bson.ObjectId) {
 	urlRecordp.StatusCode = statusCode
 	urlRecordp.Time = avarageTime
 	urlRecordp.CreateUrlRecord()
-	channel <- true
+	wg.Done()
 	return
 }
 
-func PostCallback(channel chan bool, count int, url string, applicationId string) {
+func PostCallback(count int, url string, applicationId string) {
 
-	for i := 0; i < count; i++ {
-		<-channel
-	}
 	applicationUrl := "http://gotcha.hipo.biz/applications/" + applicationId + "/urls"
 	message := fmt.Sprintf("Benchmark completed like a boss! <%s|Check details.>", applicationUrl)
 	callbackData := map[string]string{"username": "gotcha",
@@ -483,13 +490,15 @@ func FetchApplicationURLs(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
-	channel := make(chan bool)
+
+	var wg sync.WaitGroup
 
 	for i := 0; i < len(urls); i++ {
-		time.Sleep(time.Duration(application.WaitTime) * time.Millisecond)
-		go FetchURL(channel, urls[i], urls[i].Id)
+	        wg.Add(1)
+		go FetchURL(urls[i], urls[i].Id, &wg)
+
 	}
 
-	go PostCallback(channel, len(urls), application.CallbackUrl, applicationId)
+	go PostCallback(len(urls), application.CallbackUrl, applicationId)
 
 }

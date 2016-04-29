@@ -39,7 +39,6 @@ func (a Application) Serialize() map[string]interface{} {
 		"Name":        a.Name,
 		"Id":          a.Id.Hex(),
 		"Count":       a.UrlCount(),
-		"WaitTime":    a.WaitTime,
 		"CallbackUrl": a.CallbackUrl,
 	}
 }
@@ -48,8 +47,8 @@ type Url struct {
 	Id            bson.ObjectId     `json:"id" bson:"_id"`
 	Url           string            `json:"url" bson:"url"`
 	Title         string            `json:"title" bson:"title"`
-	WaitTime      int               `json:"wait_time" bson:wait_time"`
-	TryCount      int               `json:"try_count" bson:try_count"`
+	WaitTime      int               `json:"wait_time" bson:"wait_time"`
+	TryCount      int               `json:"try_count" bson:"try_count"`
 	ApplicationId bson.ObjectId     `json:"application_id" bson:"application_id"`
 	Headers       map[string]string `json:"headers" bson:"headers"`
 }
