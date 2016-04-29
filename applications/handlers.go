@@ -327,6 +327,7 @@ func UrlDetailHandler(w http.ResponseWriter, r *http.Request) {
 
 	url_record := UrlRecord{}
 	var records []UrlRecord
+	url := Url{}
 	vars := mux.Vars(r)
 	urlId := vars["urlId"]
 	applicationId := vars["applicationId"]
@@ -338,6 +339,7 @@ func UrlDetailHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	err = mongo.Find(url_record, bson.M{"url_id": bson.ObjectIdHex(urlId)}).All(&records)
+	err = mongo.Find(url, bson.M{"_id": bson.ObjectIdHex(urlId)}).One(&url)
 	if err != nil {
 		w.WriteHeader(404)
 		return
@@ -347,7 +349,10 @@ func UrlDetailHandler(w http.ResponseWriter, r *http.Request) {
 	for i, element := range records {
 		serializedUrlRecords[i] = element.Serialize()
 	}
-	json.NewEncoder(w).Encode(serializedUrlRecords)
+	serializedUrl, err := url.Serialize()
+	bundle := map[string]interface{}{"records": serializedUrlRecords,
+		                         "url": serializedUrl}
+	json.NewEncoder(w).Encode(bundle)
 }
 
 func AvarageAccordingStandardDeviation(timelist []float64, mean float64, deviation float64) float64 {
@@ -496,9 +501,7 @@ func FetchApplicationURLs(w http.ResponseWriter, r *http.Request) {
 	for i := 0; i < len(urls); i++ {
 	        wg.Add(1)
 		go FetchURL(urls[i], urls[i].Id, &wg)
-
 	}
-
 	go PostCallback(len(urls), application.CallbackUrl, applicationId)
 
 }

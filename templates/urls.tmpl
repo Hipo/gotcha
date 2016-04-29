@@ -17,12 +17,12 @@
               <thead>
                 <tr>
                   <th>Name</th>
-                  <th>Url</th>
                   <th>Faster</th>
                   <th>Last</th>
                   <th>Previous</th>
                   <th>Time</th>
                   <th>Status Code </th>
+                  <th>Edit</th>
                   <th>Delete</th>
                 </tr>
               </thead>
@@ -32,6 +32,9 @@
         </div>
       </div>
     </div>
+
+
+
   <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -58,13 +61,9 @@
             <label for="message-text" class="control-label">Fetch Sleep</label>
             <input type='text' placeholder="Time to wait between fetchs" class="form-control" id="fetch_sleep" />
           </div>
-
-
-
-
 		  <div class="form-group">
             <label class="control-label">Headers</label>
-			<button class="btn btn-primary pull-right" id="btn-add-header">Add Header</button>
+			<button class="btn btn-primary pull-right btn-add-header">Add Header</button>
 		  </div>
         </div>
       </div>
@@ -75,6 +74,51 @@
     </div>
   </div>
   </div>
+
+  <div class="modal fade bs-example-modal-lg modal4" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="exampleModalLabel">New URL</h4>
+      </div>
+      <div class="modal-body">
+        <div>
+          <div class="form-group">
+            <label for="recipient-name" class="control-label">Title</label>
+            <input type="text" placeholder="Title for the action" class="form-control" id="title_edit" />
+          </div>
+          <div class="form-group">
+            <label for="message-text" class="control-label">Url</label>
+            <input placeholder="Example: http://xyz.com" type='text' class="form-control" id="url_edit" />
+          </div>
+          <div class="form-group">
+            <label for="message-text" class="control-label">Fetch Count</label>
+            <input type='text' placeholder="Try count for url for each fetch" class="form-control" id="fetch_count_edit" />
+          </div>
+
+          <div class="form-group">
+            <label for="message-text" class="control-label">Fetch Sleep</label>
+            <input type='text' placeholder="Time to wait between fetchs" class="form-control" id="fetch_sleep_edit" />
+          </div>
+
+
+		  <div class="form-group headers">
+            <label class="control-label">Headers</label>
+			<button class="btn btn-primary pull-right btn-add-header">Add Header</button>
+		  </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="edit-submit-url btn btn-primary">Edit URL</button>
+      </div>
+    </div>
+  </div>
+  </div>
+
+
+
 
   <div class="modal fade modal2" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
   <div class="modal-dialog modal-lg">
@@ -98,6 +142,8 @@
     </div>
   </div>
   </div>
+
+
   <div class="modal fade modal3" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -122,120 +168,212 @@
 
   <script>
 
-  $(function(){
-    var token = Cookies.get('gotcha_token')
-    var fetch_url = '/api/applications/{{.Id.Hex}}/fetch?token=' + token
-    $('.fetchurl').html('Fetch URL: ' + fetch_url)
-    $('.token').html('Token: ' + token)
+  $(function() {
+      var token = Cookies.get('gotcha_token')
+      var fetch_url = '/api/applications/{{.Id.Hex}}/fetch?token=' + token
+      $('.fetchurl').html('Fetch URL: ' + fetch_url)
+      $('.token').html('Token: ' + token)
 
-    $.get('/api/applications/{{.Id.Hex}}/urls?token='+ token, function(response){
-      var urls = JSON.parse(response)
-      var compiled = _.template('<% _.forEach(urls, function(url) ' +
-              '{ %>  <tr> ' +
-              '         <td> ' +
-              '                <a href="/applications/<%= url.ApplicationId %>/urls/<%= url.Id %>"><%= url.Title %></a>' +
-              '         </td>' +
-              '         <td><A href=<%= url.Url %>><%= url.Url.substring(0, 50) %>' +
-              '             </a></td><td><%= url.Faster %></td><td><%= (url.Last * 1000).toFixed(3) %>ms</td>' +
-              '         <td><%= (url.Previous * 1000).toFixed(3)%>ms</td>' +
-              '         <td><%= url.Time %></td><td><%= url.Status %></td>' +
-              '         <td>' +
-              '             <button data-id="<%= url.Id %>" class=" remove glyphicon glyphicon-remove" aria-hidden="true">' +
-              '             </button>' +
-              '         </td>' +
-              '       </tr>' +
-              '<% }); %>');
-      $('.urls').append((compiled({ 'urls': urls})))
-      $('.remove').on('click', function(element){
-        var removeUrlId = element.target.dataset.id
-        $.ajax({
-                url: '/api/applications/{{.Id.Hex}}/urls/' + removeUrlId + '/?token=' + token,
-                type: 'DELETE',
-                complete: function(){
+      $.get('/api/applications/{{.Id.Hex}}/urls?token=' + token, function (response) {
+          var urls = JSON.parse(response)
+          var compiled = _.template('' +
+                  '<% _.forEach(urls, function(url) ' +
+                  '{ %>  <tr> ' +
+                  '         <td> ' +
+                  '                <a href="/applications/<%= url.ApplicationId %>/urls/<%= url.Id %>"><%= url.Title %></a>' +
+                  '         </td>' +
+                  '         <td><%= url.Faster %></td>' +
+              '             <td><%= (url.Last * 1).toFixed(3) %>s</td>' +
+                  '         <td><%= (url.Previous * 1).toFixed(3) %>s</td>' +
+                  '         <td><%= url.Time.substr(0,10) %></td><td><%= url.Status %></td>' +
+                  '         <td>' +
+                  '             <button data-id="<%= url.Id %>" class="edit glyphicon glyphicon-edit" aria-hidden="true">' +
+                  '             </button>' +
+                  '         </td>' +
+                  '         <td>' +
+                  '             <button data-id="<%= url.Id %>" class=" remove glyphicon glyphicon-remove" aria-hidden="true">' +
+                  '             </button>' +
+                  '         </td>' +
+                  '       </tr>' +
+                  '<% }); %>');
+          $('.urls').append((compiled({'urls': urls})))
+          $('.remove').on('click', function (element) {
+              var removeUrlId = element.target.dataset.id
+              $.ajax({
+                  url: '/api/applications/{{.Id.Hex}}/urls/' + removeUrlId + '/?token=' + token,
+                  type: 'DELETE',
+                  complete: function () {
+                      window.location.reload()
+                  }
+              });
+
+          })
+          $('.edit').on('click', function (element) {
+              var myModal = $('.modal4');
+              var _url = $(element.target).data("id")
+              var token = Cookies.get('gotcha_token');
+
+              $.get('/api/applications/{{.Id.Hex}}/urls/' + _url + '?token=' + token, function (response) {
+                  response = JSON.parse(response)
+                  var url = response.url;
+                  $("#url_edit").val(url.Url);
+                  $("#title_edit").val(url.Title);
+                  $("#fetch_count_edit").val(url.TryCount);
+                  $("#fetch_sleep_edit").val(url.WaitTime);
+
+                  $.each(url.Headers, function (index, value) {
+                      var s = $('<div class="form-inline header-row">\
+				    <input class="form-control key" name="key" type="text" placeholder="Key" autofocus required />\
+				    <input class="form-control value" name="value" type="text" placeholder="Value" required />\
+				    <button class="btn btn-danger btn-delete-header">Delete Header</button>\
+			        </div>')
+                      $(s).children('.key').val(index);
+                      $(s).children('.value').val(value);
+                      $('.headers').append(s);
+                  });
+                    var deleteHandler = function () {
+                    $(this)
+                      .parent('.form-inline')
+                      .remove()
+                        }
+
+                  $('.btn-delete-header').on('click', deleteHandler);
+                  myModal.modal({show: true});
+
+            $('.edit-submit-url').on('click', function () {
+
+              var headers = $('.header-row').map(function (i, e) {
+                  var keyInput = $(e).children("input[name='key']").val()
+                  var valueInput = $(e).children("input[name='value']").val()
+
+                  var a = {}
+                  a[keyInput] = valueInput
+                  return a;
+              });
+              headers = Array.from(headers).reduce(function (r, c) {
+                  for (i in c) {
+                      r[i] = c[i]
+                  }
+                  return r;
+              }, {});
+
+
+              if (!$('#url').val().indexOf("://" > -1)) {
+                  alert("Please give us a valid url!")
+                  return
+              }
+
+              var data = {
+                  "url": $('#url_edit').val(),
+                  "title": $("#title_edit").val(),
+                  "headers": headers,
+                  "try_count": parseInt($("#fetch_count_edit").val()),
+                  "wait_time": parseInt($("#fetch_sleep_edit").val())
+              }
+              $.ajax({
+                  url: '/api/applications/{{.Id.Hex}}/urls/' + _url + '?token=' + token,
+                  type: "PUT",
+                  data: JSON.stringify(data),
+                  contentType: "application/json",
+                  complete: function () {
+                      window.location.reload();
+                  }
+                  });
+              });
+              return false;
+
+
+
+
+              });
+
+          });
+
+          $('#fetchUrls').on('click', function () {
+              $.get('/api/applications/{{.Id.Hex}}/fetch?token=' + token, function (response) {
                   window.location.reload()
-                }
-            });
-
-      })
-    })
-
-  $('#fetchUrls').on('click', function(){
-    $.get('/api/applications/{{.Id.Hex}}/fetch?token='+ token, function(response){
-      window.location.reload()
-    })
-  })
-
-  $('.submit-url').on('click', function(){
-	  
-	  var headers = $('.header-row').map(function(i, e) {
-		  var keyInput = $(e).children("input[name='key']").val()
-		  var valueInput = $(e).children("input[name='value']").val()
-		  
-		  var a = {}
-		  a[keyInput] = valueInput
-		  return a;
-	  });
-	  headers = Array.from(headers).reduce(function(r, c){
-		  for (i in c) {
-		  	r[i] = c[i]
-		  }
-		  return r;
-	  }, {});
+              })
+          })
 
 
-   if (!$('#url').val().indexOf("://" > -1)){
-      alert("Please give us a valid url!")
-      return
-    }
 
-	  var data = {"url": $('#url').val(), 
-                "title": $("#title").val(), 
-                "headers": headers,
-                "try_count": parseInt($("#fetch_count").val()),
-                "wait_time": parseInt($("#fetch_sleep").val())}
-    $.ajax({
-    url: '/api/applications/{{.Id.Hex}}/urls?token=' + token,
-    type: "POST",
-    data: JSON.stringify(data),
-    contentType: "application/json",
-    complete: function(){
-      window.location.reload();
-      }
-    });
-  })
+          $('.submit-url').on('click', function () {
 
-  $('.submit-callback').on('click', function(){
-    var data = {"callbackurl": $('#callback-url').val()}
-    $.ajax({
-    url: '/api/applications/{{.Id.Hex}}/addcallback?token=' + token,
-    type: "POST",
-    data: JSON.stringify(data),
-    contentType: "application/json",
-    complete: function(){
-        window.location.reload();
-      }
-    });
-  })
-  })
-  
-  var deleteHandler = function() {
-  	$(this)
-	  .parent('.form-inline')
-	  .remove()
-  }
+              var headers = $('.header-row').map(function (i, e) {
+                  var keyInput = $(e).children("input[name='key']").val()
+                  var valueInput = $(e).children("input[name='value']").val()
 
-  $('#btn-add-header').on('click', function() {
-	  var e = $('<div class="form-inline header-row">\
+                  var a = {}
+                  a[keyInput] = valueInput
+                  return a;
+              });
+              headers = Array.from(headers).reduce(function (r, c) {
+                  for (i in c) {
+                      r[i] = c[i]
+                  }
+                  return r;
+              }, {});
+
+
+              if (!$('#url').val().indexOf("://" > -1)) {
+                  alert("Please give us a valid url!")
+                  return
+              }
+
+              var data = {
+                  "url": $('#url').val(),
+                  "title": $("#title").val(),
+                  "headers": headers,
+                  "try_count": parseInt($("#fetch_count").val()),
+                  "wait_time": parseInt($("#fetch_sleep").val())
+              }
+              $.ajax({
+                  url: '/api/applications/{{.Id.Hex}}/urls?token=' + token,
+                  type: "POST",
+                  data: JSON.stringify(data),
+                  contentType: "application/json",
+                  complete: function () {
+                      window.location.reload();
+                  }
+              });
+          })
+
+
+          $('.submit-callback').on('click', function () {
+              var data = {"callbackurl": $('#callback-url').val()}
+              $.ajax({
+                  url: '/api/applications/{{.Id.Hex}}/addcallback?token=' + token,
+                  type: "POST",
+                  data: JSON.stringify(data),
+                  contentType: "application/json",
+                  complete: function () {
+                      window.location.reload();
+                  }
+              });
+          })
+      });
+
+      $('.btn-add-header').on('click', function () {
+          var e = $('<div class="form-inline header-row">\
 				  <input class="form-control" name="key" type="text" placeholder="Key" autofocus required />\
 				  <input class="form-control" name="value" type="text" placeholder="Value" required />\
 				  <button class="btn btn-danger" class="btn-delete-header">Delete Header</button>\
 			     </div>')
-	  $(e).children('button').on('click', deleteHandler);
-	  $(this).parent('.form-group').append(e);
-  })
-  
-  $(document).ready(function(){
-	  $('.btn-delete-header').on('click', deleteHandler);
+          $(e).children('button').on('click', deleteHandler);
+          $(this).parent('.form-group').append(e);
+      });
+
+
+      var deleteHandler = function () {
+          $(this)
+                  .parent('.form-inline')
+                  .remove()
+      }
+
+
+      $(document).ready(function () {
+          $('.btn-delete-header').on('click', deleteHandler);
+      })
   })
   
   </script>

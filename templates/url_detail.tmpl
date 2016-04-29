@@ -36,6 +36,7 @@
   	    $.get('/api/applications/{{.ApplicationId.Hex}}/urls/{{.Id.Hex}}?token='+ token, function(response){
 	    	var records = JSON.parse(response);
 	    	// Ad this data to table
+            var records = records.records
 	    	$('.records').append((compiled({'records': records})))
 
 	    	// Collect chart data
