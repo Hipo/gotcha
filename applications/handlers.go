@@ -475,6 +475,17 @@ func PostCallback(count int, url string, applicationId string) {
 	http.Post(url, "application/json", bytes.NewBuffer(callbackDataB))
 }
 
+func AsyncUrlCall(urls []Url, application Application, applicationId string){
+	var wg sync.WaitGroup
+	for i := 0; i < len(urls); i++ {
+	        wg.Add(1)
+		go FetchURL(urls[i], urls[i].Id, &wg)
+		wg.Wait()
+	}
+	go PostCallback(len(urls), application.CallbackUrl, applicationId)
+}
+
+
 func FetchApplicationURLs(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -496,14 +507,7 @@ func FetchApplicationURLs(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
+	go AsyncUrlCall(urls, application, applicationId)
 
-	var wg sync.WaitGroup
-
-	for i := 0; i < len(urls); i++ {
-	        wg.Add(1)
-		go FetchURL(urls[i], urls[i].Id, &wg)
-		wg.Wait()
-	}
-	go PostCallback(len(urls), application.CallbackUrl, applicationId)
 
 }
