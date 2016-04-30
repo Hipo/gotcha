@@ -1,8 +1,31 @@
-{{ template "header"}}
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Gotcha</title>
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+    <link href="/css/dashboard.css" rel="stylesheet">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
+  </head>
+
+<body>
+<div class="container">
+      <div class="page-header">
+        <h1> Gotcha</h1>
+          <h2> Benchmark your API like a boss!</h2>
+        <hr>
+
+      <a href="/login" class="btn btn-success">Login</a>
+      <a href="/signup" class="btn btn-danger">Signup</a>
+      </div>
+
+</div>
+</body>
+
 {{ template "footer" }}
-<script>
-var token = Cookies.get('gotcha_token');
-if (token){
-    window.location.replace('/applications');
-}
-</script>
