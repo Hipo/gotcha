@@ -6,7 +6,7 @@
           <h1 class="page-header">Dashboard</h1>
           <h2 class="sub-header">{{.Name}}</h2>
 
-          <button  id='fetchUrls' class='btn btn-lg btn-primary'>Fetch URLs</button>
+          <button  id='fetchUrls' class='btn btn-lg btn-primary'>Fetch ALL</button>
           <button data-toggle="modal" id="addUrl" data-target=".bs-example-modal-lg" class='btn btn-lg btn-danger'>Add URL</button>
           <button data-toggle="modal" id="callBack" data-target=".modal2" class='btn btn-lg btn-primary'>Add Callback</button>
           <button data-toggle="modal" id="details" data-target=".modal3" class='btn btn-lg btn-danger'>Credentials</button>
@@ -22,6 +22,7 @@
                   <th>Previous</th>
                   <th>Time</th>
                   <th>Status Code </th>
+                  <th>Fetch</th>
                   <th>Edit</th>
                   <th>Delete</th>
                 </tr>
@@ -61,6 +62,7 @@
             <label for="message-text" class="control-label">Fetch Sleep</label>
             <input type='text' placeholder="Time to wait between fetchs" class="form-control" id="fetch_sleep" />
           </div>
+
 		  <div class="form-group">
             <label class="control-label">Headers</label>
 			<button class="btn btn-primary pull-right btn-add-header">Add Header</button>
@@ -187,6 +189,11 @@
                   '         <td><%= (url.Previous * 1).toFixed(3) %>s</td>' +
                   '         <td><%=  url.Time %></td><td><%= url.Status %></td>' +
                   '         <td>' +
+                  '             <button data-id="<%= url.Id %>" class="fetch glyphicon glyphicon-play" aria-hidden="true">' +
+                  '             </button>' +
+                  '         </td>' +
+
+                  '         <td>' +
                   '             <button data-id="<%= url.Id %>" class="edit glyphicon glyphicon-edit" aria-hidden="true">' +
                   '             </button>' +
                   '         </td>' +
@@ -206,7 +213,19 @@
                       window.location.reload()
                   }
               });
-          })
+          });
+
+          $('.fetch').on('click', function (element) {
+              var fetchUrlId= element.target.dataset.id;
+              $.ajax({
+                  url: '/api/applications/{{.Id.Hex}}/fetch/' + fetchUrlId+ '/?token=' + token,
+                  type: 'GET',
+                  complete: function () {
+                      window.location.reload()
+                  }
+              });
+          });
+
           $('.edit').on('click', function (element) {
               var myModal = $('.modal4');
               var _url = $(element.target).data("id")
