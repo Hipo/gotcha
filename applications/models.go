@@ -8,11 +8,11 @@ import (
 )
 
 type Application struct {
-	Id          bson.ObjectId `json:"id" bson:"_id"`
-	OwnerId     bson.ObjectId `json: "owner_id" bson:"owner_id"`
-	CallbackUrl string        `json: "callback_url" bson:"callbackurl"`
-	WaitTime    int           `json: "wait_time" bson"callbackurl"`
-	Name        string        `json:"name" bson:"name"`
+	Id          int	 	  `json:"id" db:"_id"`
+	OwnerId     int 	  `json:"owner_id" db:"owner_id"`
+	CallbackUrl string        `json:"callback_url" db:"callback_url"`
+	WaitTime    int           `json:"wait_time" db:"callback_url"`
+	Name        string        `json:"name" db:"name"`
 }
 
 func (a Application) Collection() string { return "applications" }
@@ -37,20 +37,20 @@ func (a Application) UrlCount() string {
 func (a Application) Serialize() map[string]interface{} {
 	return map[string]interface{}{
 		"Name":        a.Name,
-		"Id":          a.Id.Hex(),
+		"Id":          a.Id,
 		"Count":       a.UrlCount(),
 		"CallbackUrl": a.CallbackUrl,
 	}
 }
 
 type Url struct {
-	Id            bson.ObjectId     `json:"id" bson:"_id"`
-	Url           string            `json:"url" bson:"url"`
-	Title         string            `json:"title" bson:"title"`
-	WaitTime      int               `json:"wait_time" bson:"wait_time"`
-	TryCount      int               `json:"try_count" bson:"try_count"`
-	ApplicationId bson.ObjectId     `json:"application_id" bson:"application_id"`
-	Headers       map[string]string `json:"headers" bson:"headers"`
+	Id            int		`json:"id" db:"_id"`
+	Url           string            `json:"url" db:"url"`
+	Title         string            `json:"title" db:"title"`
+	WaitTime      int               `json:"wait_time" db:"wait_time"`
+	TryCount      int               `json:"try_count" db:"try_count"`
+	ApplicationId int 		`json:"application_id" db:"application_id"`
+	Headers       map[string]string `json:"headers" db:"headers"`
 }
 
 func (u Url) Collection() string { return "urls" }
@@ -114,11 +114,11 @@ func (u *Url) Serialize() (map[string]interface{}, error) {
 }
 
 type UrlRecord struct {
-	Id          bson.ObjectId `json:"id" bson:"_id"`
-	UrlId       bson.ObjectId `json:"url_id" bson:"url_id"`
-	Time        float64       `json:"time" bson:"time"`
-	StatusCode  string        `json:"status_code" bson:"status_code"`
-	DateCreated time.Time     `json:"date_created" bson:"date_created"`
+	Id          int 	  `json:"id" db:"_id"`
+	UrlId       int 	  `json:"url_id" db:"url_id"`
+	Time        float64       `json:"time" db:"time"`
+	StatusCode  string        `json:"status_code" db:"status_code"`
+	DateCreated time.Time     `json:"date_created" db:"date_created"`
 }
 
 func (r *UrlRecord) Serialize() map[string]interface{} {

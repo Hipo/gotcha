@@ -3,9 +3,9 @@ package users
 import (
 	"crypto/rand"
 	"fmt"
-	"github.com/hipo/gotcha/mongo"
+	"database/sql"
+	_ "github.com/lib/pq"
 	"golang.org/x/crypto/bcrypt"
-	"gopkg.in/mgo.v2/bson"
 )
 
 func randToken() string {
@@ -15,26 +15,25 @@ func randToken() string {
 }
 
 type User struct {
-	Id       bson.ObjectId `json: "id" bson:"_id"`
-	Email    string        `json: "email" bson: "email"`
-	Password string        `json: "password" bson: "password"`
-	Token    string        `json: "token" bson: "token"`
+	Id       int 	       `json:"id" db:"_id"`
+	Email    string        `json:"email" db:"email"`
+	Password string        `json:"password" db:"password"`
+	Token    string        `json:"token" db:"token"`
 }
 
 func (u User) Collection() string { return "users" }
 func (u User) CreateUser() error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 	u.Password = string(hashedPassword)
-	u.Token = randToken()
-	u.Id = bson.NewObjectId()
-	err = mongo.Insert(u)
+        err = db.QueryRow("INSERT INTO userinfo(username,departname,created) VALUES($1,$2,$3) returning uid;", "astaxie", "研发部门", "2012-12-09").Scan(&lastInsertId)
+
 	fmt.Println(err)
 	return err
 }
 func (u *User) Serialize() map[string]string {
 	return map[string]string{
 		"email": u.Email,
-		"id":    u.Id.String(),
+		"id":    u.Id,
 		"token": u.Token,
 	}
 }

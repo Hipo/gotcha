@@ -508,6 +508,4 @@ func FetchApplicationURLs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	go AsyncUrlCall(urls, application, applicationId)
-
-
 }
